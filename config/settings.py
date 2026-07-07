@@ -15,8 +15,8 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-default-key-for-dev")
 
 # DEBUG False rakho production ke liye
 DEBUG = os.getenv("DEBUG", "False") == "True"
-
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["https://nandu-inventory.onrender.com"]
+CSRF_TRUSTED_ORIGINS = ["https://nandu-inventory.onrender.com"]
 
 # --- INSTALLED APPS ---
 INSTALLED_APPS = [
