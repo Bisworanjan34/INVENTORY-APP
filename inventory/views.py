@@ -2,6 +2,7 @@ import os
 import time
 import base64
 import re
+from django.http import Http404
 import requests
 import json
 import datetime
@@ -268,6 +269,34 @@ def view_stock_view(request):
             "products": products,
             "is_admin": request.user.is_superuser,
             "grand_total": grand_total,
+        },
+    )
+
+
+@login_required
+def review_scan_view(request):
+    bill_id = request.session.get("current_bill_id")
+
+    if not bill_id:
+        messages.warning(request, "No active scan found.")
+        return redirect("upload_page")
+
+    try:
+        # get_object_or_404 ka use karke object fetch kiya
+        bill = get_object_or_404(Bill, id=bill_id)
+    except Http404:
+        # Yahan humne 404 ko catch karke user ko message dikha diya
+        messages.error(request, "The bill record you are trying to view was not found.")
+        return redirect("upload_page")
+
+    results = request.session.get("scan_results", [])
+
+    return render(
+        request,
+        "inventory/review.html",
+        {
+            "results": results,
+            "bill": bill,
         },
     )
 
