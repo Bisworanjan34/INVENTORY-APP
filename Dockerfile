@@ -1,19 +1,19 @@
-# Python ka official slim image
 FROM python:3.12-slim
 
-# System dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY . /app
 
-# Yahan PIP ko upgrade karein
-RUN pip install --no-cache-dir --upgrade pip
+# Sabse pehle requirements copy karein
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Ab requirements install karein
-RUN pip install --no-cache-dir -r requirements.txt
+# Phir baki code copy karein
+COPY . .
 
 EXPOSE 10000
 
