@@ -282,40 +282,14 @@ def review_scan_view(request):
         return redirect("upload_page")
 
     try:
-        # get_object_or_404 ka use karke object fetch kiya
-        bill = get_object_or_404(Bill, id=bill_id)
-    except Http404:
-        # Yahan humne 404 ko catch karke user ko message dikha diya
+        # get_object_or_404 ki jagah sirf .get() use karo
+        bill = Bill.objects.get(id=bill_id)
+    except Bill.DoesNotExist:
+        # Ab ye exception catch hogi aur user redirect ho jayega
         messages.error(request, "The bill record you are trying to view was not found.")
+        request.session.pop("current_bill_id", None)  # Galti se padi ID ko hata do
         return redirect("upload_page")
 
-    results = request.session.get("scan_results", [])
-
-    return render(
-        request,
-        "inventory/review.html",
-        {
-            "results": results,
-            "bill": bill,
-        },
-    )
-
-
-@login_required
-def review_scan_view(request):
-    # 1. Session se bill_id lein
-    bill_id = request.session.get("current_bill_id")
-
-    # 2. Agar bill_id nahi hai, toh seedha home page ya scan page par bhej dein
-    if not bill_id:
-        return redirect(
-            "inventory:upload_scan"
-        )  # Yahan apne upload page ka URL name dein
-
-    # 3. get_object_or_404 ka use karein (ye crash hone se bachayega)
-    bill = get_object_or_404(Bill, id=bill_id)
-
-    # 4. Results fetch karein (default empty list agar kuch na ho)
     results = request.session.get("scan_results", [])
 
     return render(
