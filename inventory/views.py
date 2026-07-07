@@ -14,43 +14,59 @@ from .models import Product, Bill, BillItem
 from .forms import BillUploadForm
 from fuzzywuzzy import process
 from dotenv import load_dotenv
+import easyocr
+import gc
+from PIL import Image
+import torch
 
 load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+_reader = None
 
 
+def get_reader():
+    global _reader
+    if _reader is None:
+        # gpu=False is mandatory for Free Tier
+        _reader = easyocr.Reader(["en"], gpu=False)
+    return _reader
+
+
+# GPU ko False rakha hai, kyunki local mein GPU nahi hai
 def scan_and_analyze(bill_instance):
     try:
-        import easyocr
+        # 1. Image Resize for Memory Efficiency
+        img_path = bill_instance.bill_image.path
+        with Image.open(img_path) as img:
+            if img.size[0] > 1024 or img.size[1] > 1024:
+                img.thumbnail((1024, 1024))
+                img.save(img_path)
 
-        reader = easyocr.Reader(["en"])
-        result = reader.readtext(bill_instance.bill_image.path, detail=0)
+        # 2. OCR Execution
+        reader = get_reader()
+        result = reader.readtext(img_path, detail=0)
         raw_text = " ".join(result)
 
-        prompt = f"""
-You are an expert accountant. You are provided with the text of a grocery bill or any food bill .
-Your ONLY task is to extract the line items and the GRAND TOTAL amount which is match with final amount total price or total amount think smart remember one thing that total amount or total price always the last number in the bill bottom of the bill you can easily identify it try to get the accurate total amount ok.
+        # Memory Cleanup after OCR
+        del result
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
 
-Follow these strict rules:
-1.if you see any of this symbols like $ before or after combine with total price or total amount then remove that symbol from numbers and take only numeric value of total and one more thing is always see the qty section and price section i mean that line details take not other section details apply in qty or price section only take price and qty section value in their sections.always remember that name in alphanumeric and price in numeric only and qty in numeric only and total amount in numeric only and before that check deeply then take a action like a pro .  
-2. Ignore tax, discount, or sub-totals if they are not the final amount.
-3. The 'total_amount' must be the final amount paid by the customer.
-4. Return the output in valid JSON format only.
-5. Output format: {{"items": [{{"name": "...", "qty": 0, "price": 0.0}}], "total_amount": 0.00}}
-
-Bill Text: 
-{raw_text}
-"""
-
+        # 3. AI Analysis
+        prompt = f"""Extract line items and total amount.
+        1. Ignore tax, discount, or sub-totals if they are not the final amount.
+        2. The 'total_amount' must be the final amount paid by the customer.
+        3. Return the output in valid JSON format only.
+        4.ignore this $ symbol before or after total amount or total price and take only numeric value of total amount or total price. 
+        Output JSON: {{"items": [{{"name": "...", "qty": 0, "price": 0.0}}], "total_amount": 0.00}}. Text: {raw_text}"""
         response = client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
             model="llama-3.3-70b-versatile",
         )
 
         content = response.choices[0].message.content
-        # JSON extract karne ka behtar tarika
         json_match = re.search(r"\{.*\}", content, re.DOTALL)
-
         if not json_match:
             return []
 
@@ -58,11 +74,10 @@ Bill Text:
         items = data.get("items", [])
         total_amount = float(data.get("total_amount", 0))
 
-        # 1. Total Amount ko Bill instance mein save karo
         bill_instance.total_amount = total_amount
         bill_instance.save(update_fields=["total_amount"])
 
-        # 2. Items processing
+        # 4. Item Matching
         found = []
         products = Product.objects.all()
         names = [p.name.lower() for p in products]
@@ -100,6 +115,8 @@ Bill Text:
     except Exception as e:
         print(f"Scan Error: {e}")
         return []
+    finally:
+        gc.collect()  # Final memory flush
 
 
 @login_required
@@ -107,7 +124,6 @@ def upload_bill_view(request):
     if request.method == "POST":
         form = BillUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            # Agar session mein pehle se koi bill id hai, toh use update karo
             bill_id = request.session.get("current_bill_id")
             if bill_id:
                 try:
@@ -124,7 +140,6 @@ def upload_bill_view(request):
                 bill.save()
                 request.session["current_bill_id"] = bill.id
 
-            # Scan and Analyze (Text model se)
             results = scan_and_analyze(bill)
             request.session["scan_results"] = results
             return redirect("inventory:review_scan")

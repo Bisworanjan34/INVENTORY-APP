@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 10000
 
 # Server start command
-
+# --worker-class gevent bahut kam RAM leta hai
 CMD python manage.py migrate --noinput && \
     python manage.py collectstatic --noinput && \
-    gunicorn config.wsgi:application --bind 0.0.0.0:10000
+    gunicorn config.wsgi:application --bind 0.0.0.0:10000 --worker-class gevent --workers 1 --timeout 300
