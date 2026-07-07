@@ -3,19 +3,20 @@ from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
 
-# Build paths inside the project
+# Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables
 load_dotenv()
 
 # --- SECURITY SETTINGS ---
-# Render/Production ke liye .env mein SECRET_KEY zarur set karna
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-default-key-for-dev")
 
-# DEBUG False rakho production ke liye
+# Production ke liye DEBUG False, Local ke liye True
 DEBUG = os.getenv("DEBUG", "False") == "True"
-ALLOWED_HOSTS = ["https://nandu-inventory.onrender.com"]
+
+# Fix: Localhost aur Render URL dono allow kiye
+ALLOWED_HOSTS = ["nandu-inventory.onrender.com", "localhost", "127.0.0.1"]
 CSRF_TRUSTED_ORIGINS = ["https://nandu-inventory.onrender.com"]
 
 # --- INSTALLED APPS ---
@@ -30,10 +31,10 @@ INSTALLED_APPS = [
     "core",
 ]
 
-# --- MIDDLEWARE (Whitenoise added) ---
+# --- MIDDLEWARE (Fix: WhiteNoise upar hai) ---
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # Static files serve karne ke liye
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -62,7 +63,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-# --- DATABASE (PostgreSQL for Production, SQLite for Local) ---
+# --- DATABASE ---
 DATABASES = {
     "default": dj_database_url.config(
         default=os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
@@ -70,23 +71,7 @@ DATABASES = {
     )
 }
 
-# --- PASSWORD VALIDATORS ---
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-    },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
-]
-
-# --- INTERNATIONALIZATION ---
-LANGUAGE_CODE = "en-us"
-TIME_ZONE = "Asia/Kolkata"
-USE_I18N = True
-USE_TZ = True
-
-# --- STATIC & MEDIA FILES ---
+# --- STATIC & MEDIA ---
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
@@ -94,7 +79,17 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# --- EMAIL SETTINGS ---
+# --- SECURITY ENHANCEMENTS (Fix: X-Frame options) ---
+SESSION_COOKIE_HTTPONLY = True
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = "SAMEORIGIN"  # Admin panel ke liye zaroori hai
+
+# --- LOGIN SETTINGS ---
+LOGIN_URL = "core:login"
+LOGIN_REDIRECT_URL = "core:home"
+LOGOUT_REDIRECT_URL = "core:login"
+
+# --- EMAIL ---
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
@@ -102,14 +97,3 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("EMAIL_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASS")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-EMAIL_TIMEOUT = 5
-
-# --- LOGIN SETTINGS ---
-LOGIN_URL = "core:login"
-LOGIN_REDIRECT_URL = "core:home"
-LOGOUT_REDIRECT_URL = "core:login"
-
-# --- SECURITY ENHANCEMENTS ---
-SESSION_COOKIE_HTTPONLY = True
-SECURE_BROWSER_XSS_FILTER = True
-X_FRAME_OPTIONS = "DENY"
