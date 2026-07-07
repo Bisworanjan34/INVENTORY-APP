@@ -279,7 +279,7 @@ def review_scan_view(request):
 
     if not bill_id:
         messages.warning(request, "No active scan found.")
-        return redirect("upload_page")
+        return redirect("inventory:upload_page")
 
     try:
         # get_object_or_404 ki jagah sirf .get() use karo
