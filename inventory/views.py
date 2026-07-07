@@ -6,7 +6,7 @@ import requests
 import json
 import datetime
 from groq import Groq
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import F, Sum
@@ -274,8 +274,19 @@ def view_stock_view(request):
 
 @login_required
 def review_scan_view(request):
+    # 1. Session se bill_id lein
     bill_id = request.session.get("current_bill_id")
-    bill = Bill.objects.get(id=bill_id)
+
+    # 2. Agar bill_id nahi hai, toh seedha home page ya scan page par bhej dein
+    if not bill_id:
+        return redirect(
+            "inventory:upload_scan"
+        )  # Yahan apne upload page ka URL name dein
+
+    # 3. get_object_or_404 ka use karein (ye crash hone se bachayega)
+    bill = get_object_or_404(Bill, id=bill_id)
+
+    # 4. Results fetch karein (default empty list agar kuch na ho)
     results = request.session.get("scan_results", [])
 
     return render(
@@ -283,7 +294,7 @@ def review_scan_view(request):
         "inventory/review.html",
         {
             "results": results,
-            "bill": bill,  # <--- Ye 'bill' object bhejna zaroori hai
+            "bill": bill,
         },
     )
 
