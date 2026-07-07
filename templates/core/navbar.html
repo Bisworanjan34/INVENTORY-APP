@@ -1,0 +1,40 @@
+<nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+
+            <!-- Logo Section -->
+          <a href="{% url 'core:home' %}" 
+   class="flex items-center group shrink-0 transition-all duration-300 hover:scale-105 animate-fade-scale">
+    
+    <span class="text-2xl sm:text-3xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+        Lipu
+    </span>
+    
+    <span class="text-[10px] sm:text-xs font-bold tracking-[0.2em] text-orange-500 uppercase ml-1 pt-1.5 transition-colors group-hover:text-orange-600">
+        Inventory
+    </span>
+</a>
+
+            <!-- User Action Section -->
+            <!-- Mobile par gap kam (gap-3), badi screen par normal (gap-6) -->
+            <div class="flex items-center gap-3 sm:gap-6">
+                {% if user.is_authenticated %}
+                <!-- Mobile screen par username hide kar diya hai taaki layout na toote, tablet/desktop (sm) par dikhega -->
+                <span class="hidden sm:inline-block text-sm font-medium text-gray-600">Hi, {{ user.username }}</span>
+
+                <!-- Mobile par button ki padding thodi kam (px-4 py-1.5) -->
+                <a href="{% url 'core:logout' %}"
+                    class="bg-red-50 text-red-600 px-4 py-1.5 sm:px-5 sm:py-2 rounded-full text-sm font-semibold hover:bg-red-600 hover:text-white transition duration-200 border border-red-200 whitespace-nowrap">
+                    Logout
+                </a>
+                {% else %}
+                <a href="{% url 'core:login' %}"
+                    class="bg-blue-50 text-blue-600 px-4 py-1.5 sm:px-5 sm:py-2 rounded-full text-sm font-semibold hover:bg-blue-600 hover:text-white transition duration-200 border border-blue-200 whitespace-nowrap">
+                    Login
+                </a>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="max-w-6xl mx-auto p-4 md:p-6">
+    <!-- Filter Form: Mobile par block, desktop par flex -->
+    <form method="GET" class="bg-white p-4 rounded-xl shadow mb-6 flex flex-col md:flex-row gap-4 items-end">
+        <div class="flex gap-4">
+            <div class="w-1/2 md:w-auto">
+                <label class="block text-xs font-bold text-gray-500 uppercase">
+                    Month</label>
+                <select name="month" class="border p-2 rounded w-full">
+                    {% for i in "123456789012"|make_list %}
+                    {% with month_num=forloop.counter %}
+                    <option value="{{ month_num }}" 
+                    {% if month_num|slugify == 
+                        selected_month|slugify %} selected  {%
+                        endif %}>
+                        {{ month_num }}
+                    </option>
+                    {% endwith %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="w-1/2 md:w-auto">
+                <label class="block text-xs font-bold text-gray-500 uppercase">Year</label>
+                <input type="number" name="year" value="{{ selected_year }}" class="border p-2 rounded w-full">
+            </div>
+        </div>
+        <button type="submit"
+            class="bg-blue-600 text-white px-6 py-2 rounded font-bold hover:bg-blue-700 w-full md:w-auto">Filter</button>
+    </form>
+
+    <a href="{% url 'core:home' %}" class="btn btn-outline-success btn-sm px-3 mb-4"><i class="bi bi-arrow-left"></i>
+        Back</a>
+
+    <div class="bg-white p-4 md:p-6 rounded-xl shadow">
+        <h2 class="text-lg md:text-xl font-bold mb-4">Bills for {{ selected_month }}/{{ selected_year }}</h2>
+
+        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 flex justify-between items-center mb-6">
+            <div>
+                <h3 class="font-bold text-blue-800 text-sm md:text-base">Monthly Expenditure</h3>
+            </div>
+            <div class="text-md md:text-xl  font-extrabold text-blue-900">₹{{ total_amount|floatformat:2 }}</div>
+        </div>
+
+        <!-- Desktop: Table, Mobile: Card List -->
+        <div class="hidden md:block">
+            <table class="w-full text-left">
+                <thead class="bg-gray-100 text-gray-700">
+                    <tr>
+                        <th class="p-3">Bill ID</th>
+                        <th class="p-3">Uploaded By</th>
+                        <th class="p-3">Date</th>
+                        <th class="p-3">Amount</th>
+                        <th class="p-3">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bill in bills %}
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3">{{ bill.id }}</td>
+                        <td class="p-3">{{ bill.uploaded_by.username }}</td>
+                        <td class="p-3">{{ bill.upload_date|date:"d M, Y" }}</td>
+                        <td class="p-3 font-bold">₹ {{ bill.total_amount|default:"0.00"|floatformat:2 }}</td>
+                        <td class="p-3"><a href="{% url 'inventory:bill_detail' bill.id %}"
+                                class="text-blue-600 font-bold hover:underline">View</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Card View -->
+        <div class="md:hidden space-y-3">
+            {% for bill in bills %}
+            <div class="border rounded-lg p-3 flex justify-between items-center bg-gray-50">
+                <div>
+                    <p class="font-bold text-sm">{{ bill.uploaded_by.username }}</p>
+                    <p class="text-[10px] text-gray-500">{{ bill.upload_date|date:"d M, Y" }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-sm">₹ {{ bill.total_amount|floatformat:2 }}</p>
+                    <a href="{% url 'inventory:bill_detail' bill.id %}"
+                        class="text-[10px] text-blue-600 font-bold">View</a>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-center text-gray-500 text-sm">No bills found.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

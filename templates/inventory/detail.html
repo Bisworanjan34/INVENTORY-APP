@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Bill Detail | {{ bill.id }}{% endblock %}
+
+{% block body %}
+<div class="max-w-2xl mx-auto p-3 md:p-6 mt-2 md:mt-10 bg-white rounded-2xl shadow-lg border border-gray-100">
+
+    <div class="relative">
+        {% if bill.bill_image %}
+        <img src="{{ bill.bill_image.url }}" class="w-full rounded-lg shadow-sm border border-gray-200">
+        {% else %}
+        <div class="w-full h-48 md:h-64 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 text-sm">
+            No Image Available</div>
+        {% endif %}
+    </div>
+
+    <div class="mt-4 md:mt-6">
+        <h1 class="text-xl md:text-3xl font-extrabold text-gray-900">Bill #{{ bill.id }}</h1>
+        <div class="flex flex-col gap-1 mt-2 text-gray-600 text-xs md:text-base">
+            <p>Uploaded by: <span class="font-bold text-gray-800">{{ bill.uploaded_by.username }}</span></p>
+            <p>Date:
+                <span class="font-bold text-gray-800">
+                    {{ bill.upload_date|date:"M d, Y - P" }}
+                </span>
+            </p>
+        </div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-2 gap-2">
+        <a href="{% url 'inventory:gallery' %}"
+            class="col-span-1 px-2 py-2.5 bg-blue-600 text-white rounded-lg font-bold text-[11px] md:text-sm hover:bg-blue-700 transition text-center">
+            ← Gallery
+        </a>
+
+        {% if bill.bill_image %}
+        <a href="{{ bill.bill_image.url }}" download
+            class="col-span-1 px-2 py-2.5 bg-green-600 text-white rounded-lg font-bold text-[11px] md:text-sm hover:bg-green-700 transition text-center">
+            Download
+        </a>
+        {% endif %}
+
+        {% if user.is_superuser %}
+        <button type="button" onclick="showModal()"
+            class="col-span-2 px-4 py-2.5 bg-red-600 text-white rounded-lg font-bold text-[11px] md:text-sm hover:bg-red-700 transition">
+            Delete Bill
+        </button>
+        {% endif %}
+    </div>
+</div>
+
+<div id="deleteModal"
+    class="hidden fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="bg-white p-6 rounded-2xl max-w-xs w-full text-center">
+        <h3 class="text-lg font-bold text-gray-800">Confirm Deletion</h3>
+        <p class="text-gray-600 mt-1 text-xs">This action is permanent.</p>
+
+        <div class="mt-6 flex gap-2 justify-center">
+            <button onclick="closeModal()"
+                class="flex-1 py-2 bg-gray-200 text-gray-800 rounded-lg font-bold text-xs">Back</button>
+            <form action="{% url 'inventory:delete_bills' %}" method="POST" class="flex-1">
+                {% csrf_token %}
+                <input type="hidden" name="bill_ids" value="{{ bill.id }}">
+                <button type="submit"
+                    class="w-full py-2 bg-red-600 text-white rounded-lg font-bold text-xs">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showModal() { document.getElementById('deleteModal').classList.remove('hidden'); }
+    function closeModal() { document.getElementById('deleteModal').classList.add('hidden'); }
+</script>
+{% endblock %}

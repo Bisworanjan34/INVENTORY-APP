@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block body %}
+
+<div id="loading-overlay"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255, 255, 255, 0.9); z-index:9999; backdrop-filter: blur(5px); flex-direction:column; justify-content:center; align-items:center;">
+    <div class="spinner-grow text-primary" style="width:3rem; height:3rem;"></div>
+    <h6 class="mt-3 fw-bold text-primary">AI is Analyzing Bill...</h6>
+</div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-5">
+
+            <a href="{% url 'core:home' %}" class="btn btn-sm btn-light border-0 mb-4 shadow-sm px-3">
+                <i class="bi bi-arrow-left me-1"></i> Dashboard
+            </a>
+
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden border-top border-4 border-primary">
+                <div class="bg-white p-4 text-center">
+                    <div class="bg-primary bg-opacity-10 text-primary d-inline-block p-3 rounded-circle mb-3">
+                        <i class="bi bi-camera-fill fs-2"></i>
+                    </div>
+                    <h4 class="fw-bold mb-1">Scan New Bill</h4>
+                    <p class="text-muted small">Upload a clear photo to extract items</p>
+                </div>
+
+                <div class="card-body p-4 bg-light bg-opacity-50">
+                    <form method="post" action="{% url 'inventory:upload_page' %}" enctype="multipart/form-data"
+                        id="scanForm">
+                        {% csrf_token %}
+
+                        <div class="mb-4">
+                            <label class="form-label text-secondary small fw-bold">Select Bill Image</label>
+                            <div class="upload-box border border-2 border-dashed p-4 rounded-3 text-center bg-white">
+                                {{ form.as_p }}
+                            </div>
+                        </div>
+
+                        <button type="submit"
+                            class="btn btn-primary btn-sm w-100 py-3 rounded-3 shadow-primary fw-bold">
+                            <i class="bi bi-magic me-2"></i> Process & Scan
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            {% if messages %}
+            <div class="mt-4">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-3 border-0 shadow-sm"
+                    role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom Styling */
+    .shadow-primary {
+        box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+    }
+
+    .upload-box {
+        transition: 0.3s;
+    }
+
+    .upload-box:hover {
+        border-color: #0d6efd !important;
+        cursor: pointer;
+    }
+
+    /* Mobile responsive fix for file input */
+    input[type="file"] {
+        width: 100%;
+        font-size: 13px;
+    }
+</style>
+
+<script>
+    document.getElementById('scanForm').addEventListener('submit', function () {
+        document.getElementById('loading-overlay').style.display = 'flex';
+        const btn = this.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Analyzing...';
+    });
+</script>
+{% endblock %}

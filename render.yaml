@@ -1,0 +1,19 @@
+# render.yaml (Safe Version)
+services:
+  - type: web
+    name: lipu-inventory
+    env: docker
+    # Yahan koi value mat likho
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: DEBUG
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false

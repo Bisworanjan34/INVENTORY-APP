@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="p-3 md:p-6">
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+        <h2 class="text-xl md:text-2xl font-bold">Bill History</h2>
+
+        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <a href="{% url 'core:home' %}" class="btn btn-outline-success btn-sm px-3">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+            <div class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold shadow-md text-sm">
+                Total: {{ bills.count }}
+            </div>
+            {% if user.is_superuser %}
+            <button type="button" onclick="showDeleteModal()"
+                class="bg-red-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-700 transition text-sm">
+                Delete
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if user.is_superuser %}
+    <div class="mb-4 bg-white p-2 rounded-lg shadow-sm border inline-block w-full sm:w-auto">
+        <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-700 text-sm">
+            <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" class="w-5 h-5">
+            Select All
+        </label>
+    </div>
+    {% endif %}
+
+    <form id="bulk-delete-form" method="POST" action="{% url 'inventory:delete_bills' %}">
+        {% csrf_token %}
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 md:gap-4">
+            {% for bill in bills %}
+            {% if bill.bill_image %}
+            <div
+                class="bg-white rounded shadow border border-gray-200 relative overflow-hidden transition-transform hover:scale-105">
+                {% if user.is_superuser %}
+                <input type="checkbox" name="bill_ids" value="{{ bill.id }}"
+                    class="bill-checkbox absolute top-1 left-1 w-4 h-4 z-10 cursor-pointer">
+                {% endif %}
+
+                <a href="{% url 'inventory:bill_detail' bill.id %}" class="block">
+                    <img src="{{ bill.bill_image.url }}" class="w-full h-24 md:h-32 object-cover"
+                        alt="Bill #{{ bill.id }}">
+                </a>
+
+                <div class="p-1 text-center">
+                    <span class="text-[10px] bg-blue-50 px-2 py-1 rounded text-blue-600 font-bold uppercase truncate">
+                        By: {{ bill.uploaded_by.username }}
+                    </span>
+                    <a href="{% url 'inventory:bill_detail' bill.id %}"
+                        class="block mt-1 bg-blue-600 text-white py-1 rounded text-[9px] font-semibold hover:bg-blue-700">
+                        View
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            {% empty %}
+            <p class="text-gray-500 col-span-full text-center py-10">No bills found.</p>
+            {% endfor %}
+        </div>
+    </form>
+</div>
+
+<div id="deleteModal"
+    class="hidden fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center">
+        <h3 class="text-xl font-bold text-gray-800">Confirm Deletion</h3>
+        <p class="text-gray-600 mt-2 text-sm">Are you sure? This will remove all selected bills.</p>
+        <div class="mt-6 flex gap-3 justify-center">
+            <button onclick="closeModal()"
+                class="px-6 py-2 bg-gray-200 rounded-lg font-bold hover:bg-gray-300">Back</button>
+            <button onclick="document.getElementById('bulk-delete-form').submit()"
+                class="px-6 py-2 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700">Yes, Delete</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSelectAll(source) {
+        checkboxes = document.getElementsByClassName('bill-checkbox');
+        for (var i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = source.checked;
+        }
+    }
+    function showDeleteModal() { document.getElementById('deleteModal').classList.remove('hidden'); }
+    function closeModal() { document.getElementById('deleteModal').classList.add('hidden'); }
+</script>
+{% endblock %}

@@ -1,0 +1,12 @@
+# Local Development & Storage
+credentials.json
+.env
+db.sqlite3
+__pycache__/
+staticfiles/
+media/
+venv/
+
+# Docker related
+.dockerignore
+*.log
