@@ -1,9 +1,9 @@
-# Python ka official image use karo
+# Python ka official slim image
 FROM python:3.12-slim
 
-# System dependencies jo EasyOCR ke liye chahiye
+# System dependencies jo EasyOCR/OpenCV ke liye chahiye
 RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -13,7 +13,7 @@ COPY . /app
 # Requirements install karo
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Port 10000 (Render ka default)
+# Render ka default port
 EXPOSE 10000
 
 # Server start command
