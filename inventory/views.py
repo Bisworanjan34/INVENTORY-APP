@@ -288,7 +288,7 @@ def review_scan_view(request):
         # Ab ye exception catch hogi aur user redirect ho jayega
         messages.error(request, "The bill record you are trying to view was not found.")
         request.session.pop("current_bill_id", None)  # Galti se padi ID ko hata do
-        return redirect("upload_page")
+        return redirect("inventory:upload_page")
 
     results = request.session.get("scan_results", [])
 
