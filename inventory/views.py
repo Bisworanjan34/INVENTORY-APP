@@ -20,6 +20,7 @@ from django.core.files.base import ContentFile
 from dotenv import load_dotenv
 import gc
 from PIL import Image
+from django.contrib.sites.shortcuts import get_current_site
 
 load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
@@ -33,7 +34,14 @@ def scan_and_analyze(bill_instance):
         else:
             # Production ke liye jo code humne upar likha tha (requests wala)
             image_url = bill_instance.bill_image.url
-            img_response = requests.get(image_url)
+            if not image_url.startswith("http"):
+                # Agar relative path hai, toh domain jodein
+                image_url = f"https://nandu-inventory.onrender.com{image_url}"
+            print(
+                f"DEBUG: Fetching image from: {image_url}"
+            )  # Logs mein check karne ke liye
+            img_response = requests.get(image_url, timeout=10)
+            img_response.raise_for_status()  # Agar error ho toh turant pata chale
             img = Image.open(BytesIO(img_response.content))
         # Resize for API efficiency
         if img.size[0] > 1024 or img.size[1] > 1024:
@@ -53,7 +61,8 @@ def scan_and_analyze(bill_instance):
         )
 
         result = response.json()
-        if "ParsedResults" not in result:
+        print(f"DEBUG: OCR Result: {result}")
+        if "ParsedResults" not in result or not result["ParsedResults"]:
             return []
         raw_text = result["ParsedResults"][0].get("ParsedText", "")
 
