@@ -28,21 +28,19 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def scan_and_analyze(bill_instance):
     try:
-        if settings.DEBUG:
-            img_path = bill_instance.bill_image.path
-            img = Image.open(img_path)
+        image_url = bill_instance.bill_image.url
+
+        if image_url.startswith("http"):
+            # Yeh Cloudinary ka full URL hai (Production)
+            final_url = image_url
         else:
-            # Production ke liye jo code humne upar likha tha (requests wala)
-            image_url = bill_instance.bill_image.url
-            if not image_url.startswith("http"):
-                # Agar relative path hai, toh domain jodein
-                image_url = f"https://nandu-inventory.onrender.com{image_url}"
-            print(
-                f"DEBUG: Fetching image from: {image_url}"
-            )  # Logs mein check karne ke liye
-            img_response = requests.get(image_url, timeout=10)
-            img_response.raise_for_status()  # Agar error ho toh turant pata chale
-            img = Image.open(BytesIO(img_response.content))
+            # Yeh local relative path hai (Local Development)
+            final_url = f"http://127.0.0.1:8000{image_url}"
+
+        print(f"DEBUG: Fetching image from: {final_url}")
+        img_response = requests.get(final_url, timeout=10)
+        img_response.raise_for_status()
+        img = Image.open(BytesIO(img_response.content))
         # Resize for API efficiency
         if img.size[0] > 1024 or img.size[1] > 1024:
             img.thumbnail((1024, 1024))
