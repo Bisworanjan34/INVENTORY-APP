@@ -13,8 +13,7 @@ load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-default-key-for-dev")
 
 # Production ke liye DEBUG False, Local ke liye True
-# DEBUG = os.getenv("DEBUG", "False") == "True"
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
 # Fix: Localhost aur Render URL dono allow kiye
 ALLOWED_HOSTS = ["nandu-inventory.onrender.com", "localhost", "127.0.0.1"]
@@ -98,3 +97,11 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("EMAIL_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASS")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+LANGUAGE_CODE = "en-us"
+
+# Ise 'Asia/Kolkata' set karein
+TIME_ZONE = "Asia/Kolkata"
+
+USE_I18N = True
+USE_TZ = True

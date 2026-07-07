@@ -2,6 +2,7 @@ import os
 import time
 import base64
 import re
+import requests
 import json
 import datetime
 from groq import Groq
@@ -9,64 +10,70 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import F, Sum
-from django.conf import settings
+
+from config import settings
 from .models import Product, Bill, BillItem
 from .forms import BillUploadForm
 from fuzzywuzzy import process
+from io import BytesIO
+from django.core.files.base import ContentFile
 from dotenv import load_dotenv
-import easyocr
 import gc
 from PIL import Image
-import torch
 
 load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-_reader = None
 
 
-def get_reader():
-    global _reader
-    if _reader is None:
-        # gpu=False is mandatory for Free Tier
-        _reader = easyocr.Reader(["en"], gpu=False)
-    return _reader
-
-
-# GPU ko False rakha hai, kyunki local mein GPU nahi hai
 def scan_and_analyze(bill_instance):
     try:
-        # 1. Image Resize for Memory Efficiency
-        img_path = bill_instance.bill_image.path
-        with Image.open(img_path) as img:
-            if img.size[0] > 1024 or img.size[1] > 1024:
-                img.thumbnail((1024, 1024))
-                img.save(img_path)
+        if settings.DEBUG:
+            img_path = bill_instance.bill_image.path
+            img = Image.open(img_path)
+        else:
+            # Production ke liye jo code humne upar likha tha (requests wala)
+            image_url = bill_instance.bill_image.url
+            img_response = requests.get(image_url)
+            img = Image.open(BytesIO(img_response.content))
+        # Resize for API efficiency
+        if img.size[0] > 1024 or img.size[1] > 1024:
+            img.thumbnail((1024, 1024))
+
+        # Temporary buffer mein save karein for OCR
+        buffer = BytesIO()
+        img.save(buffer, format="JPEG")
+        buffer.seek(0)
 
         # 2. OCR Execution
-        reader = get_reader()
-        result = reader.readtext(img_path, detail=0)
-        raw_text = " ".join(result)
+        api_key = os.getenv("OCR_API_KEY")
+        response = requests.post(
+            "https://api.ocr.space/parse/image",
+            files={"file": ("bill.jpg", buffer, "image/jpeg")},
+            data={"apikey": api_key, "language": "eng", "OCREngine": "2"},
+        )
 
-        # Memory Cleanup after OCR
-        del result
-        gc.collect()
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
+        result = response.json()
+        if "ParsedResults" not in result:
+            return []
+        raw_text = result["ParsedResults"][0].get("ParsedText", "")
 
-        # 3. AI Analysis
+        # 3. AI Analysis (Llama 3.3)
         prompt = f"""Extract line items and total amount.
         1. Ignore tax, discount, or sub-totals if they are not the final amount.
         2. The 'total_amount' must be the final amount paid by the customer.
         3. Return the output in valid JSON format only.
-        4.ignore this $ symbol before or after total amount or total price and take only numeric value of total amount or total price. 
-        Output JSON: {{"items": [{{"name": "...", "qty": 0, "price": 0.0}}], "total_amount": 0.00}}. Text: {raw_text}"""
-        response = client.chat.completions.create(
+        4. Ignore '$' or symbols, take only numeric values. 
+        Output JSON: {{"items": [{{"name": "...", "qty": 0, "price": 0.0}}], "total_amount": 0.00}}. 
+        Text: {raw_text}"""
+
+        ai_response = client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
             model="llama-3.3-70b-versatile",
         )
 
-        content = response.choices[0].message.content
+        content = ai_response.choices[0].message.content
         json_match = re.search(r"\{.*\}", content, re.DOTALL)
+
         if not json_match:
             return []
 
@@ -74,31 +81,43 @@ def scan_and_analyze(bill_instance):
         items = data.get("items", [])
         total_amount = float(data.get("total_amount", 0))
 
+        # Save to Model
         bill_instance.total_amount = total_amount
         bill_instance.save(update_fields=["total_amount"])
 
-        # 4. Item Matching
+        # 4. Item Matching (Optimized)
+        products = list(Product.objects.all())
+        product_names = [p.name.lower() for p in products]
         found = []
-        products = Product.objects.all()
-        names = [p.name.lower() for p in products]
 
         for item in items:
             name = str(item.get("name", "Unknown")).strip()
             qty = int(item.get("qty", 0))
             price = float(item.get("price", 0.0))
 
-            best = process.extractOne(name.lower(), names) if names else None
-            if best and best[1] > 85:
-                p = next(p for p in products if p.name.lower() == best[0])
-                found.append(
-                    {
-                        "id": p.id,
-                        "name": p.name,
-                        "qty": qty,
-                        "price": price,
-                        "action": "update",
-                    }
-                )
+            if product_names:
+                best = process.extractOne(name.lower(), product_names)
+                if best and best[1] > 85:
+                    p = next(p for p in products if p.name.lower() == best[0])
+                    found.append(
+                        {
+                            "id": p.id,
+                            "name": p.name,
+                            "qty": qty,
+                            "price": price,
+                            "action": "update",
+                        }
+                    )
+                else:
+                    found.append(
+                        {
+                            "id": "new",
+                            "name": name,
+                            "qty": qty,
+                            "price": price,
+                            "action": "create",
+                        }
+                    )
             else:
                 found.append(
                     {
@@ -116,7 +135,7 @@ def scan_and_analyze(bill_instance):
         print(f"Scan Error: {e}")
         return []
     finally:
-        gc.collect()  # Final memory flush
+        gc.collect()
 
 
 @login_required
@@ -146,9 +165,6 @@ def upload_bill_view(request):
     else:
         form = BillUploadForm()
     return render(request, "inventory/upload.html", {"form": form})
-
-
-# --- Baaki saare functions waisay hi rahenge ---
 
 
 @login_required
