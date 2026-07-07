@@ -1,10 +1,9 @@
-# Python ka official slim image
+# Python ka official slim image (Lightweight)
 FROM python:3.12-slim
 
-# System dependencies jo EasyOCR/OpenCV ke liye chahiye
-RUN apt-get update && apt-get install -y \
-    libgl1 \
-    libglib2.0-0 \
+# System dependencies (sirf zaroori cheezein)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -17,7 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 10000
 
 # Server start command
-# --worker-class gevent bahut kam RAM leta hai
+# Workers 2 ya 3 rakhein agar Render ka RAM plan allow kare
 CMD python manage.py migrate --noinput && \
     python manage.py collectstatic --noinput && \
-    gunicorn config.wsgi:application --bind 0.0.0.0:10000 --worker-class gevent --workers 1 --timeout 300
+    gunicorn config.wsgi:application --bind 0.0.0.0:10000 --workers 3 --timeout 300
