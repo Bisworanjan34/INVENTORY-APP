@@ -21,6 +21,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 
+# urls.py
+handler404 = "core.views.error_404_view"
+handler500 = "core.views.custom_500_view"
 urlpatterns = [
     path("srslipu/", admin.site.urls),
     path("", include("core.urls"), name="core"),

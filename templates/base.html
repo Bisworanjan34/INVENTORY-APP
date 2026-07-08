@@ -68,7 +68,25 @@
 
 <body>
     {% include 'core/navbar.html' %}
-
+    {% if messages %}
+<div class="fixed top-20 right-4 z-[100] w-full max-w-sm md:max-w-md px-4">
+    {% for message in messages %}
+    <div id="message-{{ forloop.counter }}" 
+         class="relative flex items-center justify-between bg-white/90 backdrop-blur-md border-l-4 border-blue-500 shadow-xl p-4 rounded-lg mb-3 animate-slide-in">
+        <div class="flex items-center gap-3">
+            <span class="text-blue-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </span>
+            <p class="text-sm font-semibold text-gray-800">{{ message }}</p>
+        </div>
+        <button onclick="document.getElementById('message-{{ forloop.counter }}').remove()" 
+                class="text-gray-400 hover:text-red-500 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
     <div class="container mt-4">
         {% block body %}{% endblock %}
     </div>

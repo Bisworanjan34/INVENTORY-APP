@@ -14,7 +14,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-default-key-for-dev")
 
 # Production ke liye DEBUG False, Local ke liye True
 DEBUG = os.getenv("DEBUG", "False") == "True"
-
+# DEBUG = False
 # Fix: Localhost aur Render URL dono allow kiye
 ALLOWED_HOSTS = ["nandu-inventory.onrender.com", "localhost", "127.0.0.1"]
 CSRF_TRUSTED_ORIGINS = ["https://nandu-inventory.onrender.com"]
@@ -101,6 +101,9 @@ SESSION_COOKIE_HTTPONLY = True
 SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = "SAMEORIGIN"  # Admin panel ke liye zaroori hai
 
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+SESSION_COOKIE_AGE = 1209600  # 2 weeks (sec mein)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 # --- LOGIN SETTINGS ---
 LOGIN_URL = "core:login"
 LOGIN_REDIRECT_URL = "core:home"
