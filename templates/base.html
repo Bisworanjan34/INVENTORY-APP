@@ -1,50 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Google Fonts for Professional Look -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <title>{%block title %}Inventory Pro{%endblock%}</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2921/2921226.png">
+    
+    <title>{% block title %}Inventory Pro{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
 
+        input, select, textarea {
+            display: block; width: 100%; padding: 0.6rem;
+            border: 1px solid #cbd5e1; border-radius: 0.5rem;
         }
-
-        input,
-        select,
-        textarea {
-            display: block;
+        /* PREMIUM MARQUEE SECTION */
+        .marquee-container {
             width: 100%;
-            padding: 0.375rem 0.75rem;
-            font-size: 1rem;
-            line-height: 1.5;
-            border: 1px solid #ced4da;
-            border-radius: 0.375rem;
+            overflow: hidden;
+            background: #00000011;
+            padding: 20px 0;
+            position: relative;
+            border-bottom: 2px solid transparent;
+            background-image: linear-gradient(#00000013, #0000001a), linear-gradient(90deg, #ff007f, #7928ca, #0070f3);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
         }
 
-        .nv-t {
-            font-size: 11px;
-            font-weight: bold;
+        .marquee-text {
+            display: flex;
+            white-space: nowrap;
+            animation: marquee 30s linear infinite;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #ffffff;
             letter-spacing: 2px;
-
         }
-         @keyframes fadeScale {
-    0% { opacity: 0; transform: scale(0.9); }
-    100% { opacity: 1; transform: scale(1); }
-}
-.animate-fade-scale {
-    animation: fadeScale 0.8s ease-out forwards;
-}
+
+        .marquee-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 0 50px;
+            font-size: 1.1rem;
+            background: linear-gradient(90deg, #fff, #a1a1aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        @media (max-width: 768px) {
+            .marquee-container { padding: 12px 0; }
+            .marquee-item { font-size: 0.65rem; padding: 0 25px; }
+        }
     </style>
 </head>
 
 <body>
-    {%include 'core/navbar.html'%}
-    <div class="container mt-5">
+    {% include 'core/navbar.html' %}
+
+    <div class="container mt-4">
         {% block body %}{% endblock %}
     </div>
+
     {% include 'core/footer.html' %}
 </body>
-
 </html>
