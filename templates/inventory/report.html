@@ -1,19 +1,15 @@
 {% extends 'base.html' %}
 {% block body %}
 <div class="max-w-6xl mx-auto p-4 md:p-6">
-    <!-- Filter Form: Mobile par block, desktop par flex -->
-    <form method="GET" class="bg-white p-4 rounded-xl shadow mb-6 flex flex-col md:flex-row gap-4 items-end">
-        <div class="flex gap-4">
+    
+    <form method="GET" class="bg-black/60 border border-green-500/50 p-4 mb-6 flex flex-col md:flex-row gap-4 items-end">
+        <div class="flex gap-4 w-full">
             <div class="w-1/2 md:w-auto">
-                <label class="block text-xs font-bold text-gray-500 uppercase">
-                    Month</label>
-                <select name="month" class="border p-2 rounded w-full">
+                <label class="block text-[9px] font-bold text-green-600 uppercase tracking-widest">Month</label>
+                <select name="month" class="w-full bg-black border border-green-700 text-green-500 p-2 focus:outline-none">
                     {% for i in "123456789012"|make_list %}
                     {% with month_num=forloop.counter %}
-                    <option value="{{ month_num }}" 
-                    {% if month_num|slugify == 
-                        selected_month|slugify %} selected  {%
-                        endif %}>
+                    <option value="{{ month_num }}" {% if month_num|slugify == selected_month|slugify %} selected {% endif %}>
                         {{ month_num }}
                     </option>
                     {% endwith %}
@@ -21,70 +17,68 @@
                 </select>
             </div>
             <div class="w-1/2 md:w-auto">
-                <label class="block text-xs font-bold text-gray-500 uppercase">Year</label>
-                <input type="number" name="year" value="{{ selected_year }}" class="border p-2 rounded w-full">
+                <label class="block text-[9px] font-bold text-green-600 uppercase tracking-widest">Year</label>
+                <input type="number" name="year" value="{{ selected_year }}" class="w-full bg-black border border-green-700 text-white p-2 focus:outline-none">
             </div>
         </div>
-        <button type="submit"
-            class="bg-blue-600 text-white px-6 py-2 rounded font-bold hover:bg-blue-700 w-full md:w-auto">Filter</button>
+        <button type="submit" class="bg-green-600 text-black font-black uppercase py-2 px-6 hover:bg-green-400 transition w-full md:w-auto tracking-widest">
+            Filter Data
+        </button>
     </form>
 
-    <a href="{% url 'core:home' %}" class="btn btn-outline-success btn-sm px-3 mb-4"><i class="bi bi-arrow-left"></i>
-        Back</a>
+    <a href="{% url 'core:home' %}" class="inline-block border border-green-400 bg-gray-700 text-white px-4 py-1 text-xs uppercase mb-4 hover:bg-green-800/30">
+        ← Back
+    </a>
 
-    <div class="bg-white p-4 md:p-6 rounded-xl shadow">
-        <h2 class="text-lg md:text-xl font-bold mb-4">Bills for {{ selected_month }}/{{ selected_year }}</h2>
+    <div class="bg-black/60 border border-green-500/50 p-4 md:p-6 shadow-[0_0_20px_rgba(0,255,65,0.1)]">
+        <h2 class="text-green-500 font-black uppercase tracking-widest mb-4 border-b border-green-900 pb-2">
+            Bills: {{ selected_month }}/{{ selected_year }}
+        </h2>
 
-        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 flex justify-between items-center mb-6">
-            <div>
-                <h3 class="font-bold text-blue-800 text-sm md:text-base">Monthly Expenditure</h3>
-            </div>
-            <div class="text-md md:text-xl  font-extrabold text-blue-900">₹{{ total_amount|floatformat:2 }}</div>
+        <div class="bg-green-900/20 p-4 border border-green-700 flex justify-between items-center mb-6">
+            <h3 class="font-bold text-green-400 text-sm uppercase tracking-widest">Monthly Expenditure</h3>
+            <div class="text-xl font-black text-white">₹{{ total_amount|floatformat:2 }}</div>
         </div>
 
-        <!-- Desktop: Table, Mobile: Card List -->
-        <div class="hidden md:block">
+        <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left">
-                <thead class="bg-gray-100 text-gray-700">
-                    <tr>
+                <thead class="border-b border-green-800">
+                    <tr class="text-green-600 text-[10px] uppercase tracking-widest">
                         <th class="p-3">Bill ID</th>
-                        <th class="p-3">Uploaded By</th>
+                        <th class="p-3">User</th>
                         <th class="p-3">Date</th>
                         <th class="p-3">Amount</th>
                         <th class="p-3">Action</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="text-gray-300 font-mono">
                     {% for bill in bills %}
-                    <tr class="border-b hover:bg-gray-50">
+                    <tr class="border-b border-green-900/30 hover:bg-green-900/10">
                         <td class="p-3">{{ bill.id }}</td>
                         <td class="p-3">{{ bill.uploaded_by.username }}</td>
                         <td class="p-3">{{ bill.upload_date|date:"d M, Y" }}</td>
-                        <td class="p-3 font-bold">₹ {{ bill.total_amount|default:"0.00"|floatformat:2 }}</td>
-                        <td class="p-3"><a href="{% url 'inventory:bill_detail' bill.id %}"
-                                class="text-blue-600 font-bold hover:underline">View</a></td>
+                        <td class="p-3 font-bold text-white">₹ {{ bill.total_amount|default:"0.00"|floatformat:2 }}</td>
+                        <td class="p-3"><a href="{% url 'inventory:bill_detail' bill.id %}" class="text-green-500 font-bold hover:underline">[ VIEW ]</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
 
-        <!-- Mobile Card View -->
         <div class="md:hidden space-y-3">
             {% for bill in bills %}
-            <div class="border rounded-lg p-3 flex justify-between items-center bg-gray-50">
+            <div class="border border-green-900 p-3 flex justify-between items-center bg-black/40">
                 <div>
-                    <p class="font-bold text-sm">{{ bill.uploaded_by.username }}</p>
-                    <p class="text-[10px] text-gray-500">{{ bill.upload_date|date:"d M, Y" }}</p>
+                    <p class="font-bold text-white text-sm">{{ bill.uploaded_by.username }}</p>
+                    <p class="text-[9px] text-green-600 uppercase">{{ bill.upload_date|date:"d M, Y" }}</p>
                 </div>
                 <div class="text-right">
-                    <p class="font-bold text-sm">₹ {{ bill.total_amount|floatformat:2 }}</p>
-                    <a href="{% url 'inventory:bill_detail' bill.id %}"
-                        class="text-[10px] text-blue-600 font-bold">View</a>
+                    <p class="font-bold text-green-400 text-sm">₹ {{ bill.total_amount|floatformat:2 }}</p>
+                    <a href="{% url 'inventory:bill_detail' bill.id %}" class="text-[9px] text-green-500 font-bold uppercase hover:underline">[ View ]</a>
                 </div>
             </div>
             {% empty %}
-            <p class="text-center text-gray-500 text-sm">No bills found.</p>
+            <p class="text-center text-green-800 text-sm py-4 uppercase">No bills found.</p>
             {% endfor %}
         </div>
     </div>

@@ -1,19 +1,26 @@
 {% extends 'base.html' %}
 {% block body %}
-<div class="p-3 md:p-6">
-    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        <h2 class="text-xl md:text-2xl font-bold">Bill History</h2>
+<style>
+    /* Cyber-Green Styling */
+    .cyber-card { background: rgba(0, 0, 0, 0.6); border: 1px solid #00ff41; }
+    .cyber-btn { padding: 4px 12px !important; font-size: 10px !important; font-weight: bold; text-transform: uppercase; }
+    .page-title { color: #ffffff; font-weight: 900; letter-spacing: 1px; text-shadow: 0 0 8px rgba(0, 255, 65, 0.4); }
+</style>
 
-        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-            <a href="{% url 'core:home' %}" class="btn btn-outline-success btn-sm px-3">
-                <i class="bi bi-arrow-left"></i> Back
+<div class="p-3 md:p-6 max-w-7xl mx-auto">
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-3 border-b border-green-900 pb-4">
+        <h2 class="text-xl md:text-2xl page-title">BILL HISTORY</h2>
+
+        <div class="flex items-center gap-2">
+            <a href="{% url 'core:home' %}" class="cyber-btn border border-green-500 text-green-200 hover:bg-green-500 hover:text-black transition bg-green-900/40">
+                Back
             </a>
-            <div class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold shadow-md text-sm">
+            <div class="bg-green-900 border border-green-500 text-green-400 px-3 py-1.5 rounded font-bold text-[11px] uppercase">
                 Total: {{ bills.count }}
             </div>
             {% if user.is_superuser %}
-            <button type="button" onclick="showDeleteModal()"
-                class="bg-red-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-700 transition text-sm">
+            <button type="button" onclick="showDeleteModal()" class="cyber-btn bg-red-950 border border-red-600 text-red-300 hover:bg-red-600 hover:text-white transition">
                 Delete
             </button>
             {% endif %}
@@ -21,9 +28,9 @@
     </div>
 
     {% if user.is_superuser %}
-    <div class="mb-4 bg-white p-2 rounded-lg shadow-sm border inline-block w-full sm:w-auto">
-        <label class="flex items-center gap-2 cursor-pointer font-bold text-gray-700 text-sm">
-            <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" class="w-5 h-5">
+    <div class="mb-4 bg-black/40 border border-green-800 p-2 inline-block">
+        <label class="flex items-center gap-2 cursor-pointer font-bold text-green-500 text-[10px] uppercase">
+            <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" class="accent-green-500 w-4 h-4">
             Select All
         </label>
     </div>
@@ -31,49 +38,43 @@
 
     <form id="bulk-delete-form" method="POST" action="{% url 'inventory:delete_bills' %}">
         {% csrf_token %}
-        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 md:gap-4">
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
             {% for bill in bills %}
             {% if bill.bill_image %}
-            <div
-                class="bg-white rounded shadow border border-gray-200 relative overflow-hidden transition-transform hover:scale-105">
+            <div class="cyber-card rounded overflow-hidden relative group hover:border-green-400 transition-all">
                 {% if user.is_superuser %}
-                <input type="checkbox" name="bill_ids" value="{{ bill.id }}"
-                    class="bill-checkbox absolute top-1 left-1 w-4 h-4 z-10 cursor-pointer">
+                <input type="checkbox" name="bill_ids" value="{{ bill.id }}" class="bill-checkbox absolute top-1 left-1 w-4 h-4 z-10 accent-green-500 cursor-pointer">
                 {% endif %}
 
                 <a href="{% url 'inventory:bill_detail' bill.id %}" class="block">
-                    <img src="{{ bill.bill_image.url }}" class="w-full h-24 md:h-32 object-cover"
-                        alt="Bill #{{ bill.id }}">
+                    <img src="{{ bill.bill_image.url }}" class="w-full h-24 md:h-32 object-cover opacity-80 group-hover:opacity-100" alt="Bill #{{ bill.id }}">
                 </a>
 
                 <div class="p-1 text-center">
-                    <span class="text-[10px] bg-blue-50 px-2 py-1 rounded text-blue-600 font-bold uppercase truncate">
-                        By: {{ bill.uploaded_by.username }}
+                    <span class="text-[9px] bg-green-900/50 text-green-400 px-2 py-0.5 block truncate uppercase font-bold">
+                        {{ bill.uploaded_by.username }}
                     </span>
-                    <a href="{% url 'inventory:bill_detail' bill.id %}"
-                        class="block mt-1 bg-blue-600 text-white py-1 rounded text-[9px] font-semibold hover:bg-blue-700">
+                    <a href="{% url 'inventory:bill_detail' bill.id %}" class="block mt-1 bg-green-600 text-black py-1 text-[9px] font-black uppercase hover:bg-green-400">
                         View
                     </a>
                 </div>
             </div>
             {% endif %}
             {% empty %}
-            <p class="text-gray-500 col-span-full text-center py-10">No bills found.</p>
+            <p class="text-green-700 col-span-full text-center py-10 uppercase">No bills found.</p>
             {% endfor %}
         </div>
     </form>
 </div>
 
-<div id="deleteModal"
-    class="hidden fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-    <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full text-center">
-        <h3 class="text-xl font-bold text-gray-800">Confirm Deletion</h3>
-        <p class="text-gray-600 mt-2 text-sm">Are you sure? This will remove all selected bills.</p>
+<!-- Delete Modal -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="bg-black border border-red-600 p-6 max-w-sm w-full text-center">
+        <h3 class="text-lg font-black text-white uppercase">Confirm Deletion</h3>
+        <p class="text-red-400 mt-2 text-xs uppercase">Are you sure? Action is irreversible.</p>
         <div class="mt-6 flex gap-3 justify-center">
-            <button onclick="closeModal()"
-                class="px-6 py-2 bg-gray-200 rounded-lg font-bold hover:bg-gray-300">Back</button>
-            <button onclick="document.getElementById('bulk-delete-form').submit()"
-                class="px-6 py-2 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700">Yes, Delete</button>
+            <button onclick="closeModal()" class="px-6 py-2 border border-gray-600 text-gray-400 font-bold text-xs uppercase">Back</button>
+            <button onclick="document.getElementById('bulk-delete-form').submit()" class="px-6 py-2 bg-red-600 text-white font-bold text-xs uppercase">Yes, Delete</button>
         </div>
     </div>
 </div>
@@ -81,9 +82,7 @@
 <script>
     function toggleSelectAll(source) {
         checkboxes = document.getElementsByClassName('bill-checkbox');
-        for (var i = 0; i < checkboxes.length; i++) {
-            checkboxes[i].checked = source.checked;
-        }
+        for (var i = 0; i < checkboxes.length; i++) { checkboxes[i].checked = source.checked; }
     }
     function showDeleteModal() { document.getElementById('deleteModal').classList.remove('hidden'); }
     function closeModal() { document.getElementById('deleteModal').classList.add('hidden'); }

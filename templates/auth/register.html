@@ -1,47 +1,58 @@
 {% extends 'base.html' %}
 {% block body %}
-<!-- Padding mobile ke liye kam, laptop ke liye zyada -->
-<div class="min-h-screen flex items-center justify-center bg-gray-50 py-6 px-4">
-    <!-- max-w-sm mobile ke liye, md:max-w-md laptop ke liye -->
-    <div
-        class="max-w-sm md:max-w-md w-full space-y-6 bg-white p-6 md:p-10 rounded-2xl shadow-xl border border-gray-100">
+<div class="min-h-screen flex items-center justify-center bg-black py-6 px-4">
+    <div class="max-w-sm md:max-w-md w-full space-y-6 bg-black/60 p-6 md:p-10 border border-green-500/50 shadow-[0_0_20px_rgba(0,255,65,0.1)]">
 
         <div class="text-center">
-            <h2 class="text-2xl md:text-3xl font-extrabold text-gray-900">Create Account</h2>
-            <p class="mt-1 text-xs md:text-sm text-gray-600">Join our team by creating an account</p>
+            <h2 class="text-2xl md:text-3xl font-black text-green-500 uppercase tracking-widest">Create Account</h2>
+            <p class="mt-2 text-[10px] md:text-xs text-gray-400 uppercase tracking-widest">Join the System</p>
         </div>
 
-        <form class="space-y-4" method="POST">
+        <form class="space-y-5" method="POST">
             {% csrf_token %}
 
-            <div class="space-y-3">
+            <div class="space-y-4">
                 {% for field in form %}
                 <div>
-                    <label class="block text-xs md:text-sm font-medium text-gray-700 mb-1">
+                    <label class="block text-[9px] md:text-[10px] font-bold text-green-600 uppercase mb-1">
                         {{ field.label }}
                     </label>
                     {{ field }}
                     {% if field.errors %}
-                    <p class="text-red-500 text-[10px] mt-1">{{ field.errors.0 }}</p>
+                    <p class="text-red-500 text-[9px] mt-1 uppercase">{{ field.errors.0 }}</p>
                     {% endif %}
                 </div>
                 {% endfor %}
             </div>
 
-            <div>
-                <button type="submit"
-                    class="w-full flex justify-center py-2.5 md:py-3 border border-transparent text-xs md:text-sm font-bold rounded-lg text-white bg-green-600 hover:bg-green-700 transition shadow-md">
-                    Register Now
-                </button>
-            </div>
+            <button type="submit"
+                class="w-full flex justify-center py-3 border border-green-500 text-xs md:text-sm font-black text-black bg-green-600 hover:bg-green-400 transition uppercase tracking-widest">
+                Register Now
+            </button>
         </form>
 
-        <div class="text-center text-[11px] md:text-sm text-gray-600">
+        <div class="text-center text-[10px] md:text-xs text-green-800 uppercase tracking-widest">
             <p>
-                Already have an account?
-                <a href="{% url 'core:login' %}" class="font-bold text-blue-600 hover:underline">Sign in here</a>
+               <span class="text-gray-400"> Already have an account? </span>
+                <a href="{% url 'core:login' %}" class="font-bold text-green-400 hover:text-white">Sign in</a>
             </p>
         </div>
     </div>
 </div>
+
+<style>
+    /* Input fields ko Cyber look dene ke liye */
+    input {
+        width: 100%;
+        background: black !important;
+        border: 1px solid #004d1f !important;
+        color: white !important;
+        padding: 10px !important;
+        font-size: 14px;
+    }
+    input:focus {
+        border-color: #00ff41 !important;
+        outline: none;
+    }
+</style>
 {% endblock %}
