@@ -3,6 +3,7 @@ from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
 
+# settings.py mein check karo
 # Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 

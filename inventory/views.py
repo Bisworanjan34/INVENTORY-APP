@@ -338,5 +338,27 @@ def delete_bills_view(request):
     if request.method == "POST":
         bill_ids = request.POST.getlist("bill_ids")
         if bill_ids:
-            Bill.objects.filter(id__in=bill_ids).delete()
+            success_count = 0
+            error_count = 0
+
+            bills_to_delete = Bill.objects.filter(id__in=bill_ids)
+
+            for bill in bills_to_delete:
+                try:
+                    # bill.delete() signal trigger karega
+                    bill.delete()
+                    success_count += 1
+                except Exception:
+                    error_count += 1
+
+            # Feedback Messages
+            if success_count > 0:
+                messages.success(
+                    request, f"SYSTEM_ALERT: {success_count} BILLS PURGED."
+                )
+            if error_count > 0:
+                messages.error(
+                    request, f"SYSTEM_ERROR: {error_count} BILLS FAILED TO PURGE."
+                )
+
     return redirect("inventory:gallery")

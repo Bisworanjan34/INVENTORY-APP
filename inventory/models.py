@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from cloudinary.models import CloudinaryField
 
 
 class Product(models.Model):
@@ -19,7 +20,7 @@ class Bill(models.Model):
     """
 
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    bill_image = models.ImageField(upload_to="bills/")
+    bill_image = CloudinaryField("image", folder="bills")
     upload_date = models.DateTimeField(auto_now_add=True)
     total_amount = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, blank=True
