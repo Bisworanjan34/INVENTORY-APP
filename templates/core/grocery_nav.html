@@ -1,0 +1,110 @@
+<!-- NAV SECTION START -->
+<nav class="sticky top-0 z-50 py-2 w-full bg-green-800/80 backdrop-blur-md border-b border-green-900">
+    
+    <!-- DESKTOP NAVBAR -->
+    <div class="hidden md:flex justify-between items-center px-8 py-3">
+        <a href="{% url 'grocery:grocery_list' %}" class="text-green-400 font-black tracking-widest text-lg uppercase">LIPU_GROCERY</a>
+
+        <form action="{% url 'grocery:grocery_list' %}" method="GET" class="flex-1 mx-10">
+            <input type="text" name="q" placeholder="Search products..." 
+                   class="w-full bg-black border border-green-900 text-white px-6 py-2 text-sm rounded-full focus:outline-none focus:border-green-500 transition-all duration-300">
+        </form>
+
+        <div class="flex items-center gap-6">
+            {% if user.is_superuser %}
+            <a href="{% url 'grocery:admin_orders' %}" class="text-yellow-500 hover:text-white uppercase text-xs font-bold tracking-widest transition-colors duration-300">Admin_Logs</a>
+            {% endif %}
+
+            <a href="{% url 'grocery:view_cart' %}" class="relative text-white hover:text-green-500 transition-colors duration-300">
+                <i class="fas fa-shopping-cart text-xl"></i>
+                {% if cart_total_qty > 0 %}
+                <span class="absolute -top-2 -right-2 bg-red-600 text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full text-white">{{ cart_total_qty }}</span>
+                {% endif %}
+            </a>
+            
+            <div class="relative group">
+                <a href="{% url 'grocery:profile' %}" 
+                   class="flex items-center gap-2 text-green-500 border border-green-900 px-3 py-1 rounded-full bg-black/50 hover:bg-green-900/20 transition-all duration-300">
+                    <i class="fas fa-user-circle text-lg"></i>
+                    <span class="text-xs font-bold uppercase text-white hover:text-green-400">{{ user.username }}</span>
+                </a>
+                <div class="absolute right-0 mt-2 w-48 bg-black border border-green-900 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                    <a href="{% url 'grocery:profile' %}" class="block px-4 py-3 text-xs font-bold text-white hover:text-green-400 border-b border-green-900 transition-colors">MY PROFILE</a>
+                    <a href="{% url 'grocery:my_orders' %}" class="block px-4 py-3 text-xs font-bold text-white hover:text-green-400 transition-colors">MY ORDERS</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MOBILE NAVBAR -->
+    <div class="md:hidden flex justify-between items-center px-4 py-3 bg-green-900/80 border-b border-green-500/30">
+        <a href="{% url 'grocery:grocery_list' %}" class="text-green-400 font-black tracking-widest text-md uppercase transition-transform duration-300 hover:scale-[1.03] hover:text-orange-400">LIPU_GROCERY</a>
+        <div class="flex items-center gap-4">
+            <button id="search-toggle-btn" class="text-green-500 hover:text-green-400 transition-colors duration-300 focus:outline-none">
+                <i class="fas fa-search text-md"></i>
+            </button>
+            <!-- Menu Button with Rotation Animation -->
+            <button id="menu-btn" class="text-green-500 focus:outline-none">
+                <i id="menu-icon" class="fas fa-bars text-xl transition-all duration-500 ease-linear"></i>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- Mobile Search Bar (Smooth Transition Toggle) -->
+<div id="mobile-search-bar" class="max-h-0 overflow-hidden md:hidden bg-black border-b border-green-900 transition-all duration-500 ease-linear">
+    <form action="{% url 'grocery:grocery_list' %}" method="GET" class="flex gap-2 p-3">
+        <input type="text" name="q" placeholder="Search..." 
+               class="w-full bg-black border border-green-900 text-white px-4 py-2 text-sm rounded-full focus:border-green-500 outline-none">
+        <button type="submit" class="text-green-500 px-2"><i class="fas fa-arrow-right text-lg"></i></button>
+    </form>
+</div>
+
+<!-- Mobile Menu (Smooth Transition Toggle) -->
+<div id="mobile-menu" class="max-h-0 overflow-hidden md:hidden bg-black/50 border-b border-green-900 transition-all duration-500 ease-linear">
+    <div class="flex flex-col gap-3 text-white text-sm font-bold uppercase p-4 border-t border-green-900">
+        {% if user.is_superuser %}
+        <a href="{% url 'grocery:admin_orders' %}" class="text-yellow-500 text-[12px] hover:text-green-400 transition-colors"><i class="fas fa-shield-alt mr-2"></i> Admin_Logs</a>
+        {% endif %}
+
+        <a href="{% url 'grocery:grocery_list' %}" class="text-[12px] hover:text-green-400 transition-colors"><i class="fas fa-home mr-2"></i> Home</a>
+        <a href="{% url 'grocery:view_cart' %}" class="text-[12px] hover:text-green-400 transition-colors"><i class="fas fa-shopping-cart mr-2"></i> Cart</a>
+        <a href="{% url 'grocery:profile' %}" class="text-[12px] hover:text-green-400 transition-colors"><i class="fas fa-user mr-2"></i> My Profile</a>
+        <a href="{% url 'grocery:my_orders' %}" class="text-[12px] hover:text-green-400 transition-colors"><i class="fas fa-box mr-2"></i> My Orders</a>
+    </div>
+</div>
+
+<script>
+    const searchBtn = document.getElementById('search-toggle-btn');
+    const searchBar = document.getElementById('mobile-search-bar');
+    
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuIcon = document.getElementById('menu-icon');
+
+    // Toggle Mobile Search with Smooth Height Animation
+    searchBtn.addEventListener('click', function() {
+        if (searchBar.style.maxHeight && searchBar.style.maxHeight !== "0px") {
+            searchBar.style.maxHeight = "0px";
+        } else {
+            searchBar.style.maxHeight = searchBar.scrollHeight + "px";
+        }
+        // Close menu if open
+        mobileMenu.style.maxHeight = "0px";
+        menuIcon.classList.remove('rotate-90');
+    });
+
+    // Toggle Mobile Menu with Smooth Height & Rotation Animation
+    menuBtn.addEventListener('click', function() {
+        if (mobileMenu.style.maxHeight && mobileMenu.style.maxHeight !== "0px") {
+            mobileMenu.style.maxHeight = "0px";
+            menuIcon.classList.remove('rotate-90');
+        } else {
+            mobileMenu.style.maxHeight = mobileMenu.scrollHeight + "px";
+            menuIcon.classList.add('rotate-90');
+        }
+        // Close search if open
+        searchBar.style.maxHeight = "0px";
+    });
+</script>
+<!-- NAV SECTION END -->

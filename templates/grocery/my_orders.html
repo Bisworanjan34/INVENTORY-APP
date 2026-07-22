@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="max-w-4xl mx-auto p-4 bg-black/40">
+    <h2 class="text-green-400 font-black text-md mb-6 uppercase tracking-widest">My Orders</h2>
+    
+    <!-- Container -->
+    <div class="space-y-4">
+        {% for order in orders %}
+        <!-- Card: Original Style -->
+        <div onclick="window.location.href='{% url 'grocery:my_order_details' order.id %}'" 
+             class="bg-black border border-green-900 p-4 cursor-pointer hover:border-green-500 transition-all group">
+            
+            <div class="flex justify-between items-center">
+                <!-- Left: ID, Date & Blue Payment Method -->
+                <div>
+                    <p class="text-green-400 font-mono text-sm font-bold">{{ order.id }}</p>
+                    <p class="text-gray-400 text-[10px] uppercase">{{ order.created_at|date:"d M Y" }}</p>
+                    <div class="mt-2">
+                        <span class="text-[8px] border border-blue-900/50 text-blue-400 px-1.5 py-0.5 uppercase tracking-wider">
+                            {{ order.payment_method }}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Right: Total & Status -->
+                <div class="text-right">
+                    <p class="text-white font-bold text-sm">₹{{ order.total_price }}</p>
+                    <div class="mt-2">
+                        <span class="text-[8px] uppercase px-1.5 py-0.5 border 
+                            {% if order.payment_status == 'Confirmed' %} text-green-500 border-green-500/20 
+                            {% elif order.payment_status == 'Cancelled' %} text-red-500 border-red-500/20 
+                            {% else %} text-yellow-500 border-yellow-500/20 {% endif %}">
+                            {{ order.payment_status }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="p-8 text-center border border-dashed border-green-900 text-gray-400">
+            No orders found yet.
+        </div>
+        <a href="{% url 'grocery:grocery_list' %}" class="block w-full md:w-auto text-center px-6 py-2 bg-green-800/50 text-white font-black uppercase text-xs hover:bg-green-600 transition-all">
+            Shopping Now
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}DETAIL | {{ product.name }}{% endblock %}
+
+{% block body %}
+<!-- Outer wrapper with smooth margin and responsive container -->
+<div class="max-w-[260px] w-full mx-auto p-6 mt-6 bg-black/50">
+    
+    <!-- Main Card Container: Glassmorphism effect with neon green border -->
+    <div class="bg-green-800/60 backdrop-blur-md border border-green-500/50 rounded-xl overflow-hidden shadow-[0_0_20px_rgba(34,197,94,0.15)] transition-all duration-300 hover:border-green-400 group">
+        
+        <!-- Inner Card Wrap -->
+        <div class="p-4 flex flex-col">
+            
+            <!-- Product Image with Zoom Animation on Hover -->
+            <div class="relative h-40 w-full overflow-hidden rounded-lg bg-green-950/40">
+                <img src="{{ product.image.url }}" 
+                     alt="{{ product.name }}"
+                     class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110">
+                
+                <!-- Optional subtle badge/tag space if needed -->
+                <div class="absolute top-2 right-2 bg-green-600/80 text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    Fresh
+                </div>
+            </div>
+            
+            <!-- Details Section -->
+            <div class="py-3 flex flex-col flex-grow">
+                <h1 class="text-[10px] font-bold text-white uppercase tracking-wide truncate mb-1" title="{{ product.name }}">
+                    {{ product.name }}
+                </h1>
+                <p class="text-green-400 text-[13px] font-extrabold  tracking-tight">
+                    ₹{{ product.price }}
+                </p>
+            </div>
+            
+            <!-- Action Buttons: Side-by-side on mobile, highly responsive -->
+            <div class="grid grid-cols-2 gap-2 pt-1">
+                <!-- Add To Cart: Orange Styled -->
+                <a href="{% url 'grocery:add_to_cart' product.id %}" 
+                   class="w-full py-2.5 px-2 text-[8px] text-center rounded-lg bg-gradient-to-r from-orange-700 to-orange-600 text-white uppercase font-black tracking-wider hover:from-orange-600 hover:to-orange-500 active:scale-95 transition-all duration-200 shadow-md shadow-orange-900/30 flex items-center justify-center">
+                    Add To Cart
+                </a>
+                
+                <!-- Buy Now: Blue Styled with Glow -->
+                <a href="{% url 'grocery:buy_now' product.id %}" 
+                   class="w-full py-2.5 px-1 text-[8px] text-center rounded-lg bg-gradient-to-r from-blue-700 to-blue-600 text-white uppercase font-black tracking-wider hover:from-blue-600 hover:to-blue-500 active:scale-95 transition-all duration-200 shadow-[0_0_12px_rgba(37,99,235,0.4)] flex items-center justify-center">
+                    Buy Now
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

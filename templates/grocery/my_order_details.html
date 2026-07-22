@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}ORDER #{{ order.id }} | DETAILS{% endblock %}
+
+{% block body %}
+<div class="max-w-2xl mx-auto px-4 py-8 bg-black/50">
+    
+    <!-- Top Header -->
+    <div class="mb-6 flex justify-between items-end border-b border-green-900/30 pb-4">
+        <div>
+            <h1 class="text-xl font-black text-white uppercase tracking-tighter">Order Summary</h1>
+            <p class="text-[10px] text-green-500 font-bold uppercase tracking-widest mt-1">ID:{{ order.id }} | {{ order.created_at|date:"d M Y" }}</p>
+        </div>
+        <!-- Dynamic Status Badge -->
+        <div class="text-right">
+            <p class="text-[9px] text-gray-400 uppercase">Status</p>
+            <p class="text-[10px] font-black uppercase
+                {% if order.payment_status == 'Confirmed' %} text-green-500 
+                {% elif order.payment_status == 'Cancelled' %} text-red-500 
+                {% else %} text-yellow-500 {% endif %}">
+                {{ order.payment_status }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Cancellation Notice Section (Only visible if Cancelled) -->
+   {% if order.payment_status == 'Cancelled' %}
+    <div class="mb-6 p-4 bg-red-900/10 border border-red-900/30">
+        <p class="text-[10px] text-red-500 uppercase tracking-widest font-bold">Notice: Payment Issue</p>
+        <p class="text-[11px] text-red-100 mt-1 leading-relaxed">
+            <!-- Yahan hum logic laga rahe hain: agar status 'Cancelled' hai toh ye dikhega -->
+            Your order has been cancelled due to payment verification failure. Please contact support if you need assistance.
+        </p>
+    </div>
+{% endif %}
+
+    <!-- Info Section (Payment Method & Status Box) -->
+    <div class="grid grid-cols-2 gap-3 mb-6">
+        <div class="border border-green-900/30 bg-black/40 p-3">
+            <p class="text-[9px] text-gray-500 uppercase mb-1">Payment Method</p>
+            <p class="text-white text-[11px] font-bold uppercase">{{ order.payment_method }}</p>
+        </div>
+        <div class="border border-green-900/30 bg-black/40 p-3">
+            <p class="text-[9px] text-gray-500 uppercase mb-1">Total Amount</p>
+            <p class="text-white text-[11px] font-bold">₹{{ order.total_price }}</p>
+        </div>
+    </div>
+
+    <!-- Items Container -->
+    <div class="bg-[#050505] border border-green-900/30 mb-6">
+        <div class="divide-y divide-green-900/20">
+            {% for item in items %}
+            <div class="flex items-center gap-4 p-4 hover:bg-green-900/5 transition-colors">
+                <div class="w-12 h-12 border border-green-900/50 p-0.5 bg-black">
+                    <img src="{{ item.image_url }}" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-grow">
+                    <h3 class="text-white text-[11px] font-bold uppercase">{{ item.product_name }}</h3>
+                    <p class="text-[9px] text-green-500 mt-0.5">Qty: {{ item.quantity }} x ₹{{ item.price }}</p>
+                </div>
+                <div class="text-white font-mono text-[11px] font-black">
+                    ₹{% widthratio item.price 1 item.quantity %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Footer Shipping -->
+    <div class="bg-green-900/5 border border-green-900/20 p-4">
+        <p class="text-[12px] text-blue-400 font-bold uppercase tracking-widest mb-1">{{order.full_name}}</p>
+        <p class="text-[9px] text-green-500 uppercase tracking-widest mb-1">Shipping To</p>
+        <p class="text-white text-[11px] leading-relaxed">{{ order.address }}</p>
+        
+        <a href="{% url 'grocery:my_orders' %}" 
+           class="mt-6 block w-full text-center py-3 bg-white text-black text-[10px] font-black uppercase hover:bg-green-800/70 hover:text-white transition-all ease-in">
+            Back to Orders
+        </a>
+    </div>
+</div>
+{% endblock %}

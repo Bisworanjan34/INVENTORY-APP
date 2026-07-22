@@ -9,7 +9,10 @@
       <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> -->
 
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2921/2921226.png">
-    
+
+   <!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <title>{% block title %}Lipu Systems | Inventory{% endblock %}</title>
 
     <style>
@@ -109,28 +112,10 @@
 <body>
     {% include 'core/navbar.html' %}
 
-    {% if messages %}
-<div class="fixed top-24 right-4 z-[100] w-full max-w-sm pointer-events-none">
-    {% for message in messages %}
-    <!-- Agar error hai toh border red, success hai toh green -->
-    <div id="msg-{{ forloop.counter }}" 
-         class="cyber-alert p-4 mb-3 flex items-center justify-between pointer-events-auto 
-         {% if message.tags == 'error' %}border-red-600{% else %}border-green-500{% endif %}">
-        
-        <div class="flex items-center gap-3">
-            <span class="{% if message.tags == 'error' %}text-red-500{% else %}text-green-500{% endif %} font-black">◈</span>
-            <p class="text-[10px] {% if message.tags == 'error' %}text-red-400{% else %}text-green-400{% endif %} font-bold uppercase tracking-widest">
-                {{ message }}
-            </p>
-        </div>
-        
-        <button onclick="document.getElementById('msg-{{ forloop.counter }}').remove()" 
-                class="text-gray-500 hover:text-white transition ml-2">×</button>
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
-  
+    {%include 'core/status_message.html'%}
+<!-- grocery nav-bar -->
+
+  {%include 'core/grocery_nav.html'%}
     <main class="container mx-auto px-4 py-8">
         {% block body %}{% endblock %}
     </main>

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}ORDER_CONSOLE | ADMIN{% endblock %}
+
+{% block body %}
+<div class="max-w-2xl mx-auto p-3 bg-black/40">  
+    <h2 class="text-md font-black text-green-500 uppercase mb-4 tracking-widest border-l-2 border-green-500 pl-3">
+        Dispatch Logs
+    </h2>
+
+    <div class="space-y-2">
+        {% for order in orders %}
+        <a href="{% url 'grocery:order_detail' order.id %}" class="block group">
+            <div class="bg-[#0a0a0a] border border-white/5 p-3 flex justify-between items-center hover:border-green-500 hover:bg-green-900 transition-all">
+                
+                <!-- Left: Name & Phone -->
+                <div class="">
+                    <p class="text-white text-[11px] font-bold">{{ order.full_name }}</p>
+                    <p class="text-[9px] text-green-600 font-mono">{{ order.phone }}</p>
+                     <p class="text-gray-400 text-xs font-mono">Date: {{ order.created_at|date:"d M Y, H:i" }}</p>
+            <span class="text-[8px] bg-white/5 px-1 py-0.5 text-green-400 uppercase">{{ order.payment_method }}</span>
+                </div>
+                <!-- Right: Price & Details Arrow -->
+                <div class="text-right">
+                    <p class="text-white text-[11px] font-black">₹{{ order.total_price }}</p>
+                  <span class="text-[8px] px-1 py-0.5 uppercase 
+    {% if order.payment_status == 'Confirmed' %} text-green-500 border border-green-500/20 
+    {% elif order.payment_status == 'Cancelled' %} text-red-500 border border-red-500/20 
+    {% else %} text-yellow-500 border border-yellow-500/20 {% endif %}">
+    {{ order.payment_status }}
+</span>
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <div class="text-center py-10 text-[10px] text-white/20 uppercase tracking-widest border border-dashed border-white/5">
+            No Pending Dispatches
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

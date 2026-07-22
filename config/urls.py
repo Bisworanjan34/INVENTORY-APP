@@ -28,6 +28,7 @@ urlpatterns = [
     path("srslipu/", admin.site.urls),
     path("", include("core.urls"), name="core"),
     path("inventory/", include("inventory.urls")),
+    path("grocery/", include("grocery.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Agar hum DEBUG mode mein hain, toh media files serve karo

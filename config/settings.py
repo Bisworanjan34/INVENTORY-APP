@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "cloudinary",
     "inventory",
     "core",
+    "grocery",
 ]
 
 CLOUDINARY_STORAGE = {
@@ -74,6 +75,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "grocery.context_processors.cart_count",
             ],
         },
     },

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}ORDER_CONFIRMED | LIPU_GROCERY{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex items-center justify-center p-4 bg-[#020202]/50">
+    
+    <!-- Container with Entrance Animation -->
+    <div class="max-w-[300px] w-full bg-green-900/30 border border-green-500 p-6 text-center animate-in fade-in zoom-in duration-700">
+        
+        <!-- Pulsing Success Icon -->
+        <div class="relative mb-6 flex justify-center">
+            <div class="w-16 h-16 bg-green-900/10 rounded-full flex items-center justify-center border border-green-500/30 animate-pulse">
+                <i class="fas fa-check text-green-500 text-2xl"></i>
+            </div>
+            <!-- Decorative ring -->
+            <div class="absolute w-16 h-16 border-t-2 border-green-500 rounded-full animate-spin"></div>
+        </div>
+
+        <!-- Text Content -->
+        <h2 class="text-white text-lg font-black uppercase tracking-[0.2em] mb-1">Confirmed</h2>
+        <p class="text-green-600 text-[9px] font-mono mb-6 uppercase tracking-widest">ID: #{{ order.id|default:"9921" }}</p>
+
+        <div class="text-[10px] text-gray-500 mb-8 space-y-1">
+            <p>Order dispatch sequence initiated.</p>
+            <p>Our team will contact you shortly.</p>
+        </div>
+
+        <!-- Stylish Button with Hover/Active Animation -->
+        <a href="{% url 'grocery:grocery_list' %}" 
+           class="block w-full py-3 bg-white/5 border border-white/10 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-white/10 hover:border-green-500 transition-all active:scale-95">
+            Continue_Shopping
+        </a>
+    </div>
+</div>
+{% endblock %}
