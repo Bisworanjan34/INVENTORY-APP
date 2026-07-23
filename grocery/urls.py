@@ -42,9 +42,5 @@ urlpatterns = [
     path("process-order/", views.process_order, name="process_order"),
     path("upi-payment/", views.upi_payment, name="upi_payment"),
     path("confirm-upi/", views.confirm_upi_payment, name="confirm_upi_payment"),
-    path(
-        "update-status/<int:order_id>/<str:status>/",
-        views.update_order_status,
-        name="update_status",
-    ),
+    path('update-status/<int:order_id>/<str:status>/', views.update_order_status, name='update_status'),
 ]

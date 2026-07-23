@@ -32,7 +32,7 @@
 <div class="bg-white/5 p-4 mb-4 border border-white/10">
     <div class="flex justify-between mb-2">
         <p class="text-[9px] text-white/50 uppercase">Payment Method:</p>
-        <p class="text-[9px] text-white font-bold uppercase">{{ order.payment_method }}</p>
+        <p class="text-[11px] text-green-400 font-bold uppercase">{{ order.payment_method }}</p>
     </div>
     <div class="flex justify-between mb-4">
         <p class="text-[9px] text-white/50 uppercase">Current Status:</p>
@@ -55,6 +55,11 @@
     <!-- Footer Summary -->
     <div class="border-t border-white/5 pt-4 space-y-4">
         <div>
+             <p class="text-gray-400 text-[10px] uppercase font-bold tracking-wider">
+                        User: <span class="text-blue-400">{{ order.user.username }}</span>
+                    </p>
+
+            <p class="text-[8px] text-gray-400 uppercase font-bold mb-1">name:{{order.full_name}}</p>
             <p class="text-[8px] text-green-500 uppercase font-bold mb-1">Shipping Address</p>
             <p class="text-[10px] text-gray-400 leading-relaxed">{{ order.address }}</p>
         </div>

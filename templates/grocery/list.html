@@ -11,7 +11,7 @@
         </h2>
         {% if user.is_superuser %}
         <a href="{% url 'grocery:add_product' %}" 
-           class="w-full md:w-auto text-center px-6 py-2 bg-green-500 text-black font-black uppercase text-xs hover:bg-green-800/80 hover:text-white transition-all">
+           class="w-full md:w-auto text-center px-6 py-2 bg-green-500 text-black font-black uppercase text-xs hover:bg-green-800/80 hover:text-white transition-all transition-transform duration-500 ease-linear hover:scale-105">
             + New Product
         </a>
         {% endif %}

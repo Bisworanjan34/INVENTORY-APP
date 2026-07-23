@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from cloudinary.models import CloudinaryField
-
+from django.core.validators import RegexValidator
 
 # Create your models here.
 class Product(models.Model):
@@ -27,10 +27,16 @@ class CartItem(models.Model):
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=100)
-    phone = models.CharField(max_length=15)
+    phone_regex = RegexValidator(
+        regex=r'^\d{10,15}$', 
+        message="Phone number must be digits only (10 to 15 digits)."
+    )
+
+    phone = models.CharField(validators=[phone_regex], max_length=15)
     address = models.TextField()
     payment_method = models.CharField(max_length=20, default="COD")
     payment_status = models.CharField(max_length=20, default="Pending")
+    cancellation_reason = models.TextField(blank=True, null=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
 
