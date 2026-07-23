@@ -8,15 +8,16 @@
         {% for order in orders %}
         <!-- Card: Original Style -->
         <div onclick="window.location.href='{% url 'grocery:my_order_details' order.id %}'" 
-             class="bg-black border border-green-900 p-4 cursor-pointer hover:border-green-500 transition-all group">
+             class="bg-black border border-green-900 p-4 cursor-pointer hover:border-green-500 hover:bg-green-900/80 transition-all group">
             
             <div class="flex justify-between items-center">
                 <!-- Left: ID, Date & Blue Payment Method -->
                 <div>
                     <p class="text-green-400 font-mono text-sm font-bold">{{ order.id }}</p>
-                    <p class="text-gray-400 text-[10px] uppercase">{{ order.created_at|date:"d M Y" }}</p>
+                    <p class="text-blue-400 font-mono text-[10px] font-bold">name:{{ order.full_name }}</p>
+                    <p class="text-gray-400 text-[10px] uppercase">{{ order.created_at|date:"d M Y, h:i A" }}</p>
                     <div class="mt-2">
-                        <span class="text-[8px] border border-blue-900/50 text-blue-400 px-1.5 py-0.5 uppercase tracking-wider">
+                        <span class="text-[8px] border border-blue-900/50 text-green-400 px-1.5 py-0.5 uppercase tracking-wider">
                             {{ order.payment_method }}
                         </span>
                     </div>

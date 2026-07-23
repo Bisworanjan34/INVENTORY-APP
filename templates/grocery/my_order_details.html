@@ -8,7 +8,7 @@
     <div class="mb-6 flex justify-between items-end border-b border-green-900/30 pb-4">
         <div>
             <h1 class="text-xl font-black text-white uppercase tracking-tighter">Order Summary</h1>
-            <p class="text-[10px] text-green-500 font-bold uppercase tracking-widest mt-1">ID:{{ order.id }} | {{ order.created_at|date:"d M Y" }}</p>
+            <p class="text-[10px] text-green-500 font-bold uppercase tracking-widest mt-1">ID:{{ order.id }}|{{ order.created_at|date:"d M Y, h:i A" }}</p>
         </div>
         <!-- Dynamic Status Badge -->
         <div class="text-right">

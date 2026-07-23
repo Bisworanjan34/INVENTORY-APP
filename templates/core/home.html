@@ -19,13 +19,16 @@
         <p class="text-gray-400 mt-1 font-mono text-[10px] md:text-xs uppercase tracking-widest">Inventory management control panel.</p>
 
         <div class="flex flex-wrap gap-3 mt-8">
-            <a href="{% url 'inventory:upload_page' %}" class="flex-1 min-w-[120px] text-center border border-green-500 text-green-500 px-4 py-3 font-bold hover:bg-green-500 hover:text-black transition-all duration-300 uppercase tracking-widest text-xs hover:shadow-[0_0_15px_rgba(0,255,65,0.4)]">
+            <a href="{% url 'grocery:grocery_list' %}" class="flex-1 min-w-[120px] text-center border border-green-500 text-green-500 px-4 py-3 font-bold hover:bg-green-500 hover:text-black transition-all duration-300 uppercase tracking-widest text-xs hover:shadow-[0_0_15px_rgba(0,255,65,0.4)]">
+                grocery mode on
+            </a>
+            <a href="{% url 'inventory:upload_page' %}" class="flex-1 min-w-[120px] text-center border border-orange-500 text-orange-500 px-4 py-3 font-bold hover:bg-orange-500 hover:text-black transition-all duration-300 uppercase tracking-widest text-xs hover:shadow-[0_0_15px_rgba(0,255,65,0.4)]">
                 Scan Bill
             </a>
             <a href="{% url 'inventory:view_stock' %}" class="flex-1 min-w-[120px] text-center border border-blue-500 text-blue-500 px-4 py-3 font-bold hover:bg-blue-500 hover:text-black transition-all duration-300 uppercase tracking-widest text-xs hover:shadow-[0_0_15px_rgba(59,130,246,0.4)]">
                 View Stock
             </a>
-            <a href="{% url 'inventory:gallery' %}" class="flex-1 min-w-[120px] text-center border border-orange-500 text-orange-500 px-4 py-3 font-bold hover:bg-orange-500 hover:text-black transition-all duration-300 uppercase tracking-widest text-xs hover:shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+            <a href="{% url 'inventory:gallery' %}" class="flex-1 min-w-[120px] text-center border border-yellow-500 text-yellow-500 px-4 py-3 font-bold hover:bg-yellow-500 hover:text-black transition-all duration-300 uppercase tracking-widest text-xs hover:shadow-[0_0_15px_rgba(249,115,22,0.4)]">
                 Gallery
             </a>
         </div>

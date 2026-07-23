@@ -64,7 +64,7 @@
 <div id="mobile-menu" class="max-h-0 overflow-hidden md:hidden bg-black/50 border-b border-green-900 transition-all duration-500 ease-linear">
     <div class="flex flex-col gap-3 text-white text-sm font-bold uppercase p-4 border-t border-green-900">
         {% if user.is_superuser %}
-        <a href="{% url 'grocery:admin_orders' %}" class="text-yellow-500 text-[12px] hover:text-green-400 transition-colors"><i class="fas fa-shield-alt mr-2"></i> Admin_Logs</a>
+        <a href="{% url 'grocery:admin_orders' %}" class="text-yellow-500 text-[12px] hover:text-green-400 transition-colors"><i class="fas fa-shield-alt mr-2"></i> master control</a>
         {% endif %}
 
         <a href="{% url 'grocery:grocery_list' %}" class="text-[12px] hover:text-green-400 transition-colors"><i class="fas fa-home mr-2"></i> Home</a>
