@@ -121,12 +121,14 @@ def checkout(request):
         # 1. SAVE ADDRESS LOGIC
         if "save_address" in request.POST:
             phone = request.POST.get("phone")
-            
+
             # Validation
             if not phone or not phone.isdigit() or not (10 <= len(phone) <= 15):
-                messages.error(request, "Invalid phone number. Please enter 10-15 digits only.")
+                messages.error(
+                    request, "Invalid phone number. Please enter 10-15 digits only."
+                )
                 return redirect("grocery:checkout")
-                
+
             SavedAddress.objects.create(
                 user=request.user,
                 full_name=request.POST.get("name"),
@@ -145,12 +147,18 @@ def checkout(request):
         # 3. EDIT ADDRESS LOGIC
         elif "edit_address" in request.POST:
             edit_phone = request.POST.get("edit_phone")
-            
+
             # Validation
-            if not edit_phone or not edit_phone.isdigit() or not (10 <= len(edit_phone) <= 15):
-                messages.error(request, "Invalid phone number. Please enter 10-15 digits only.")
+            if (
+                not edit_phone
+                or not edit_phone.isdigit()
+                or not (10 <= len(edit_phone) <= 15)
+            ):
+                messages.error(
+                    request, "Invalid phone number. Please enter 10-15 digits only."
+                )
                 return redirect("grocery:checkout")
-            
+
             addr = get_object_or_404(
                 SavedAddress, id=request.POST.get("address_id"), user=request.user
             )
@@ -233,16 +241,18 @@ def save_new_address(request):
     if request.method == "POST":
         phone = request.POST.get("phone")
         if not phone or not phone.isdigit() or not (10 <= len(phone) <= 15):
-            messages.error(request, "Invalid phone number. Please enter 10-15 digits only.")
+            messages.error(
+                request, "Invalid phone number. Please enter 10-15 digits only."
+            )
             return redirect("grocery:checkout")
         SavedAddress.objects.create(
             user=request.user,
             full_name=request.POST.get("name"),
-            phone=phone, # Validated phone
+            phone=phone,  # Validated phone
             address=request.POST.get("address"),
         )
         messages.success(request, "Address saved successfully.")
-        
+
     return redirect("grocery:checkout")
 
 
@@ -262,12 +272,26 @@ def my_orders(request):
 
 @login_required
 def my_order_details(request, order_id):
-    # Sirf login user ka hi order check karein (Security)
     order = get_object_or_404(Order, id=order_id, user=request.user)
     items = OrderItem.objects.filter(order=order)
 
+    items_with_totals = []
+    for item in items:
+        items_with_totals.append(
+            {
+                "product": item.product,  # Yeh zaruri hai URL link ke liye
+                "name": item.product_name,
+                "quantity": item.quantity,
+                "price": item.price,
+                "total_price": item.quantity * item.price,
+                "image_url": item.image_url,
+            }
+        )
+
     return render(
-        request, "grocery/my_order_details.html", {"order": order, "items": items}
+        request,
+        "grocery/my_order_details.html",
+        {"order": order, "items_with_totals": items_with_totals},
     )
 
 
@@ -323,6 +347,7 @@ def create_final_order(request, method, status):
             for item in cart_items:
                 OrderItem.objects.create(
                     order=order,
+                    product=item.product,
                     product_name=item.product.name,
                     price=item.product.price,
                     quantity=item.quantity,
@@ -378,11 +403,14 @@ def upi_payment(request):
 def update_order_status(request, order_id, status):
     order = get_object_or_404(Order, id=order_id)
     order.payment_status = status
-    
+
     # Agar Admin Cancel kar raha hai toh reason set karo
     if status == "Cancelled":
         # Agar admin ne koi reason bheja hai toh wo, nahi toh default reason save hoga
-        reason = request.GET.get('reason') or "Your payment was not completed or verified. Please contact support."
+        reason = (
+            request.GET.get("reason")
+            or "Your payment was not completed or verified. Please contact support."
+        )
         order.cancellation_reason = reason
     else:
         # Agar status Confirmed hai toh reason clear kar do
@@ -391,3 +419,29 @@ def update_order_status(request, order_id, status):
     order.save()
     messages.success(request, f"Order status updated to {status}")
     return redirect("grocery:order_detail", order_id=order.id)
+
+
+# cancelled order
+
+
+def cancel_order(request, order_id):
+    if request.method == "POST":
+        order = get_object_or_404(Order, id=order_id)
+
+        # Security check: Delivered order cancel nahi hona chahiye
+        if order.payment_status == "Delivered":
+            messages.error(request, "Delivered order cannot be cancelled!")
+            return redirect("grocery:order_details", order_id=order.id)
+
+        # User ka reason get karo
+        reason = request.POST.get("reason")
+
+        # Database Update
+        order.payment_status = "Cancelled"
+        order.cancellation_reason = reason
+        order.save()
+
+        messages.success(request, "Order cancelled successfully.")
+        return redirect("grocery:my_order_details", order_id=order.id)
+
+    return redirect("grocery:my_order_details", order_id=order_id)

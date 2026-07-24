@@ -12,6 +12,14 @@
         </div>
         <button onclick="toggleModal('delete-modal')" class="text-[9px] text-red-500 uppercase font-bold border border-red-900/50 px-2 py-1 hover:bg-red-900/20">Delete</button>
     </div>
+     {% if order.payment_status == 'Cancelled' %}
+        <div class="mb-4 p-4 bg-red-900/20 border-l-4 border-red-500 rounded-r-lg">
+            <p class="text-[10px] text-red-500 font-black uppercase">Order Cancelled</p>
+            <p class="text-[10px] text-red-200 mt-1 italic">
+                "{{ order.cancellation_reason|default:'Order cancelled by the store/admin.' }}"
+            </p>
+        </div>
+    {% endif %}
 
     <!-- Items List (Super Compact) -->
     <div class="space-y-3 mb-6">
@@ -39,6 +47,7 @@
         <p class="text-[9px] font-bold uppercase 
             {% if order.payment_status == 'Confirmed' %} text-green-500 
             {% elif order.payment_status == 'Cancelled' %} text-red-500 
+            {% elif order.payment_status == 'Delivered' %} text-gren-400 
             {% else %} text-yellow-500 {% endif %}">
             {{ order.payment_status }}
         </p>
@@ -47,8 +56,9 @@
     <!-- Admin Actions -->
     {% if order.payment_status == 'Pending' %}
     <div class="flex gap-2">
-        <a href="{% url 'grocery:update_status' order.id 'Confirmed' %}" class="flex-1 text-center py-2 bg-green-600 text-black text-[10px] font-black uppercase">Confirm Payment</a>
-        <a href="{% url 'grocery:update_status' order.id 'Cancelled' %}" class="flex-1 text-center py-2 bg-red-600 text-white text-[10px] font-black uppercase">Cancel Order</a>
+        <a href="{% url 'grocery:update_status' order.id 'Confirmed' %}" class="flex-1 text-center py-2 bg-blue-700 text-white text-[7px] font-black uppercase hover:bg-blue-900">Confirm Payment</a>
+        <a href="{% url 'grocery:update_status' order.id 'Cancelled' %}" class="flex-1 text-center py-2 bg-red-700 text-white text-[8px] font-black uppercase hover:bg-red-900">Cancel Order</a>
+        <a href="{% url 'grocery:update_status' order.id 'Delivered' %}" class="flex-1 text-center py-2 bg-green-700 text-white text-[8px] font-black uppercase hover:bg-green-900">Delivered</a>
     </div>
     {% endif %}
 </div>

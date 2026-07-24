@@ -30,6 +30,7 @@
                         <span class="text-[8px] uppercase px-1.5 py-0.5 border 
                             {% if order.payment_status == 'Confirmed' %} text-green-500 border-green-500/20 
                             {% elif order.payment_status == 'Cancelled' %} text-red-500 border-red-500/20 
+                            {% elif order.payment_status == 'Delivered' %} text-green-500 border-green-500/20 
                             {% else %} text-yellow-500 border-yellow-500/20 {% endif %}">
                             {{ order.payment_status }}
                         </span>

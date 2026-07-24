@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from cloudinary.models import CloudinaryField
 from django.core.validators import RegexValidator
 
+
 # Create your models here.
 class Product(models.Model):
     name = models.CharField(max_length=200)
@@ -28,8 +29,8 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=100)
     phone_regex = RegexValidator(
-        regex=r'^\d{10,15}$', 
-        message="Phone number must be digits only (10 to 15 digits)."
+        regex=r"^\d{10,15}$",
+        message="Phone number must be digits only (10 to 15 digits).",
     )
 
     phone = models.CharField(validators=[phone_regex], max_length=15)
@@ -46,6 +47,7 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
     product_name = models.CharField(max_length=200)
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)

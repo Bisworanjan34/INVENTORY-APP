@@ -35,10 +35,11 @@
                 <div class="text-right">
                     <p class="text-white text-[11px] font-black">₹{{ order.total_price }}</p>
                     <div class="mt-2">
-                        <span class="text-[8px] px-1 py-0.5 uppercase block border 
-                            {% if order.payment_status == 'Confirmed' %} text-green-500 border-green-500/20 
-                            {% elif order.payment_status == 'Cancelled' %} text-red-500 border-red-400/20 
-                            {% else %} text-yellow-500 border-yellow-500/20 {% endif %}">
+                        <span class="text-[8px] px-4 py-0.5 uppercase block border 
+                            {% if order.payment_status == 'Confirmed' %} text-white border-green-400 bg-green-800/80
+                            {% elif order.payment_status == 'Cancelled' %} text-white border-red-400 bg-red-800/80
+                            {% elif order.payment_status == 'Delivered' %} text-white border-green-400 bg-green-600/80
+                            {% else %} text-white border-yellow-400 bg-yellow-700/80{% endif %}">
                             {{ order.payment_status }}
                         </span>
                     </div>
