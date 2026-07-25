@@ -14,8 +14,8 @@ load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-default-key-for-dev")
 
 # Production ke liye DEBUG False, Local ke liye True
-DEBUG = os.getenv("DEBUG", "False") == "True"
-# DEBUG = True
+# DEBUG = os.getenv("DEBUG", "False") == "True"
+DEBUG = True
 # Fix: Localhost aur Render URL dono allow kiye
 ALLOWED_HOSTS = ["nandu-inventory.onrender.com", "localhost", "127.0.0.1"]
 CSRF_TRUSTED_ORIGINS = ["https://nandu-inventory.onrender.com"]

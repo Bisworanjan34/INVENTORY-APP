@@ -2,7 +2,7 @@
 {% block title %}CART | {{ user.username }}{% endblock %}
 
 {% block body %}
-<div class="max-w-md mx-auto p-2 bg-black/50">
+<div class="max-w-md mx-auto p-6 rounded-xl bg-black/50">
 
     <!-- Header -->
     <div class="mb-4 border-b border-green-900 pb-2">
@@ -34,7 +34,7 @@
     <div class="mt-4 p-4 bg-[#050505] border-t-2 border-green-600">
         <div class="flex justify-between items-center mb-4">
             <span class="text-gray-400 uppercase text-[9px] tracking-widest">Total</span>
-            <span class="text-xl font-black text-white">₹{{ total }}</span>
+            <span class="text-md font-black text-white">₹{{ total }}</span>
         </div>
         <a href="{% url 'grocery:checkout' %}" class="w-full block text-center py-3 bg-green-600 text-green-500 font-black uppercase text-[10px] tracking-widest hover:bg-green-800 text-white border border-green-500 transition">
             Checkout_Now

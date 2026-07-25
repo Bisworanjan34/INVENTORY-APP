@@ -409,7 +409,7 @@ def update_order_status(request, order_id, status):
         # Agar admin ne koi reason bheja hai toh wo, nahi toh default reason save hoga
         reason = (
             request.GET.get("reason")
-            or "Your payment was not completed or verified. Please contact support."
+            or "1. Your payment was not completed or verified. Please contact support.\n2. Some technical error.\n3. Item is out of stock."
         )
         order.cancellation_reason = reason
     else:

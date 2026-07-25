@@ -2,7 +2,7 @@
 {% block title %}ORDER_{{ order.id }} | DETAILS{% endblock %}
 
 {% block body %}
-<div class="max-w-md mx-auto p-3 bg-[#050505]/70 border border-white/5">
+<div class="max-w-md mx-auto p-3 bg-[#050505]/60 border border-white/5">
     
     <!-- Top Header -->
     <div class="flex justify-between items-center mb-4 border-b border-white/5 pb-3">
@@ -10,25 +10,27 @@
             <h2 class="text-white font-black text-sm uppercase">Order {{ order.id }}</h2>
             <p class="text-[9px] text-white/70 font-mono">{{ order.created_at|date:"d M Y, h:i A"}}</p>
         </div>
-        <button onclick="toggleModal('delete-modal')" class="text-[9px] text-red-500 uppercase font-bold border border-red-900/50 px-2 py-1 hover:bg-red-900/20">Delete</button>
+        <button onclick="toggleModal('delete-modal')" class="text-[9px] text-red-400 bg-red-900/80 uppercase font-bold border border-red-800/50 px-2 py-1 hover:bg-red-900/20">Delete</button>
     </div>
-     {% if order.payment_status == 'Cancelled' %}
-        <div class="mb-4 p-4 bg-red-900/20 border-l-4 border-red-500 rounded-r-lg">
+    
+    {% if order.payment_status == 'Cancelled' %}
+        <div class="mb-4 p-4 bg-red-900/50 border-l-4 border-red-500 rounded-r-lg">
             <p class="text-[10px] text-red-500 font-black uppercase">Order Cancelled</p>
-            <p class="text-[10px] text-red-200 mt-1 italic">
+            <p class="text-[7px] text-red-200 mt-1 italic">
                 "{{ order.cancellation_reason|default:'Order cancelled by the store/admin.' }}"
             </p>
         </div>
     {% endif %}
 
-    <!-- Items List (Super Compact) -->
+    <!-- Items List -->
     <div class="space-y-3 mb-6">
         {% for item in order.items.all %}
         <div class="flex items-center gap-3">
             <img src="{{ item.image_url }}" class="w-10 h-10 object-cover border border-white/5">
             <div class="flex-grow">
                 <h3 class="text-white text-[10px] font-bold uppercase">{{ item.product_name }}</h3>
-                <p class="text-[9px] text-green-600">Qty: {{ item.quantity }}</p>
+                <p class="text-[9px] text-gray-400">Qty: {{ item.quantity }}</p>
+                <p class="text-[9px] text-green-500">price: {{ item.price }}</p>
             </div>
             <div class="text-right">
                 <p class="text-white font-bold text-[10px]">₹{% widthratio item.price 1 item.quantity %}</p>
@@ -36,39 +38,49 @@
         </div>
         {% endfor %}
     </div>
-<!-- Footer Summary ke upar ye block add karo -->
-<div class="bg-white/5 p-4 mb-4 border border-white/10">
-    <div class="flex justify-between mb-2">
-        <p class="text-[9px] text-white/50 uppercase">Payment Method:</p>
-        <p class="text-[11px] text-green-400 font-bold uppercase">{{ order.payment_method }}</p>
-    </div>
-    <div class="flex justify-between mb-4">
-        <p class="text-[9px] text-white/50 uppercase">Current Status:</p>
-        <p class="text-[9px] font-bold uppercase 
-            {% if order.payment_status == 'Confirmed' %} text-green-500 
-            {% elif order.payment_status == 'Cancelled' %} text-red-500 
-            {% elif order.payment_status == 'Delivered' %} text-gren-400 
-            {% else %} text-yellow-500 {% endif %}">
-            {{ order.payment_status }}
-        </p>
+
+    <!-- Admin Status Panel -->
+    <div class="bg-white/5 p-4 mb-4 border border-white/10">
+        <div class="flex justify-between mb-2">
+            <p class="text-[9px] text-white/50 uppercase">Payment Method:</p>
+            <p class="text-[11px] text-green-400 font-bold uppercase">{{ order.payment_method }}</p>
+        </div>
+        <div class="flex justify-between mb-4">
+            <p class="text-[9px] text-white/50 uppercase">Current Status:</p>
+            <p class="text-[9px] font-bold uppercase 
+                {% if order.payment_status == 'Confirmed' %} text-green-500 
+                {% elif order.payment_status == 'Cancelled' %} text-red-500 
+                {% elif order.payment_status == 'Delivered' %} text-green-400 
+                {% else %} text-yellow-500 {% endif %}">
+                {{ order.payment_status }}
+            </p>
+        </div>
+
+        <!-- NEW PROFESSIONAL ADMIN ACTIONS -->
+        <div class="flex gap-2">
+            <!-- 1. Confirm button: Sirf tab dikhe jab Pending ho -->
+            {% if order.payment_status == 'Pending' %}
+                <a href="{% url 'grocery:update_status' order.id 'Confirmed' %}" class="flex-1 text-center py-2 bg-blue-700 text-white text-[7px] font-black uppercase hover:bg-blue-900 transition-all">Confirm</a>
+            {% endif %}
+
+            <!-- 2. Cancel button: Tab dikhe jab tak Order Cancel ya Delivered na ho jaye -->
+            {% if order.payment_status != 'Cancelled' and order.payment_status != 'Delivered' %}
+                <a href="{% url 'grocery:update_status' order.id 'Cancelled' %}" class="flex-1 text-center py-2 bg-red-700 text-white text-[7px] font-black uppercase hover:bg-red-900 transition-all">Cancel</a>
+            {% endif %}
+
+            <!-- 3. Delivered button: Tab dikhe jab tak Order Delivered na ho jaye -->
+            {% if order.payment_status != 'Delivered' and order.payment_status != 'Cancelled' %}
+                <a href="{% url 'grocery:update_status' order.id 'Delivered' %}" class="flex-1 text-center py-2 bg-green-700 text-white text-[7px] font-black uppercase hover:bg-green-900 transition-all">Delivered</a>
+            {% endif %}
+        </div>
     </div>
 
-    <!-- Admin Actions -->
-    {% if order.payment_status == 'Pending' %}
-    <div class="flex gap-2">
-        <a href="{% url 'grocery:update_status' order.id 'Confirmed' %}" class="flex-1 text-center py-2 bg-blue-700 text-white text-[7px] font-black uppercase hover:bg-blue-900">Confirm Payment</a>
-        <a href="{% url 'grocery:update_status' order.id 'Cancelled' %}" class="flex-1 text-center py-2 bg-red-700 text-white text-[8px] font-black uppercase hover:bg-red-900">Cancel Order</a>
-        <a href="{% url 'grocery:update_status' order.id 'Delivered' %}" class="flex-1 text-center py-2 bg-green-700 text-white text-[8px] font-black uppercase hover:bg-green-900">Delivered</a>
-    </div>
-    {% endif %}
-</div>
     <!-- Footer Summary -->
     <div class="border-t border-white/5 pt-4 space-y-4">
         <div>
              <p class="text-gray-400 text-[10px] uppercase font-bold tracking-wider">
-                        User: <span class="text-blue-400">{{ order.user.username }}</span>
-                    </p>
-
+                User: <span class="text-blue-400">{{ order.user.username }}</span>
+             </p>
             <p class="text-[8px] text-gray-400 uppercase font-bold mb-1">name:{{order.full_name}}</p>
             <p class="text-[8px] text-green-500 uppercase font-bold mb-1">Shipping Address</p>
             <p class="text-[10px] text-gray-400 leading-relaxed">{{ order.address }}</p>

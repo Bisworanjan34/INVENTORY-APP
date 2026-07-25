@@ -20,22 +20,27 @@
                     </p>
                     
                     <!-- Shipping Name -->
-                    <p class="text-gray-400 text-[10px] font-bold">Ship to: {{ order.full_name }}</p>
                     
                     <!-- Phone & Date -->
                     <div class=" items-center">
                         <p class="text-[10px] text-gray-400 font-mono">{{ order.phone }}</p>
-                        <p class="text-orange-500 text-[9px] font-mono">| {{ order.created_at|date:"d M Y, h:i A" }}</p>
+                        <p class="text-white text-[9px] font-mono">| {{ order.created_at|date:"d M Y, h:i A" }}</p>
                     </div>
-                    
-                    <span class="text-[8px] bg-white/5 px-1 py-0.5 text-green-400 uppercase">{{ order.payment_method }}</span>
+                    <span class="text-[9px] text-gray-400">payment:</span>
+                    <span class="text-[8px] bg-white/5 px-1 py-0.5 font-bold uppercase {%if order.payment_method == 'ONLINE'%}text-green-400
+                    {%elif order.payment_method == 'COD'%}
+                    text-orange-400
+                    {%else%}
+                      text-white
+                    {%endif%}
+                    ">{{ order.payment_method }}</span>
                 </div>
 
                 <!-- Right: Price & Status -->
                 <div class="text-right">
                     <p class="text-white text-[11px] font-black">₹{{ order.total_price }}</p>
                     <div class="mt-2">
-                        <span class="text-[8px] px-4 py-0.5 uppercase block border 
+                        <span class="text-[7px] px-4 py-0.5 uppercase block border 
                             {% if order.payment_status == 'Confirmed' %} text-white border-green-400 bg-green-800/80
                             {% elif order.payment_status == 'Cancelled' %} text-white border-red-400 bg-red-800/80
                             {% elif order.payment_status == 'Delivered' %} text-white border-green-400 bg-green-600/80
