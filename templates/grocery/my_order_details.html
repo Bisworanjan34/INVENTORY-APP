@@ -8,7 +8,7 @@
     <!-- 1. HEADER: Compact ID & Date -->
     <div class="mb-4 border-b border-white/10 pb-3 flex justify-between items-center">
         <div>
-            <h1 class="text-sm font-black uppercase tracking-tighter">Order Summary</h1>
+            <h1 class="text-sm font-bold uppercase tracking-tighter">Order Summary</h1>
             <p class="text-[9px] text-gray-400 font-mono">ID: {{ order.id }}</p>
             <p class="text-gray-400 text-[9px] font-mono">| {{ order.created_at|date:"d M Y, h:i A" }}</p>
         </div>
@@ -94,7 +94,7 @@
         <!-- Grand Total -->
         <div class="pt-2 flex justify-between items-center border-t border-white/10 mt-2">
             <p class="text-[10px] font-bold text-gray-400 uppercase">Grand Total</p>
-            <p class="text-[16px] font-black text-white">₹{{ order.total_price }}</p>
+            <p class="text-[15px] font-bold text-white">₹{{ order.total_price }}</p>
         </div>
     </div>
 </div>
