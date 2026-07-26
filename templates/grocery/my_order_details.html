@@ -5,7 +5,7 @@
 {% block body %}
 <div class="min-h-screen bg-black/50 p-3 text-white font-sans max-w-md mx-auto">
     
-    <!-- 1. HEADER: Compact ID & Date -->
+    <!-- 1. HEADER -->
     <div class="mb-4 border-b border-white/10 pb-3 flex justify-between items-center">
         <div>
             <h1 class="text-sm font-bold uppercase tracking-tighter">Order Summary</h1>
@@ -21,7 +21,7 @@
         </div>
     </div>
 
-    <!-- 2. STATUS ALERT (Only shows if Cancelled) -->
+    <!-- 2. STATUS ALERT -->
     {% if order.payment_status == 'Cancelled' %}
         <div class="mb-4 p-4 bg-red-900/20 border-l-4 border-red-500 rounded-r-lg">
             <p class="text-[10px] text-red-500 font-black uppercase">Order Cancelled</p>
@@ -36,17 +36,14 @@
         <h3 class="text-[9px] text-green-500 font-bold uppercase mb-6 tracking-widest">Live Tracking</h3>
         <div class="relative ml-2">
             <div class="absolute left-[7px] top-3 bottom-3 w-[2px] bg-gray-700"></div>
-            <!-- Placed -->
             <div class="relative flex items-center mb-8">
                 <div class="w-4 h-4 rounded-full bg-green-500 z-10 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
                 <div class="ml-4"><p class="text-[10px] font-bold text-white uppercase">Placed</p></div>
             </div>
-            <!-- Dispatched -->
             <div class="relative flex items-center mb-8">
                 <div class="w-4 h-4 rounded-full z-10 {% if order.payment_status == 'Confirmed' or order.payment_status == 'Dispatched' or order.payment_status == 'Delivered' %}bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]{% else %}bg-gray-700{% endif %}"></div>
                 <div class="ml-4"><p class="text-[10px] font-bold uppercase {% if order.payment_status == 'Confirmed' or order.payment_status == 'Dispatched' or order.payment_status == 'Delivered' %}text-white{% else %}text-gray-600{% endif %}">Dispatched</p></div>
             </div>
-            <!-- Delivered -->
             <div class="relative flex items-center">
                 <div class="w-4 h-4 rounded-full z-10 {% if order.payment_status == 'Cancelled' %}bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]{% elif order.payment_status == 'Delivered' %}bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)] border-4 border-green-800{% else %}bg-gray-700{% endif %}"></div>
                 <div class="ml-4">
@@ -58,46 +55,92 @@
         </div>
     </div>
 
-    <!-- 4. ORDER ITEMS WITH PHOTOS -->
-   <div class="bg-black/60 p-5 rounded-2xl border border-white/5 mb-4">
-    <h3 class="text-[9px] text-green-500 font-bold uppercase mb-4 tracking-widest">Order Items</h3>
-    <div class="space-y-4">
-        
-        {% for item in items_with_totals %}
-<div class="flex items-center gap-4 border-b border-white/5 pb-3">
-    
-    <!-- Yahan check lagao ki kya product exists karta hai -->
-    {% if item.product %}
-        <a href="{% url 'grocery:product_detail' item.product.id %}">
-            <div class="w-12 h-12 rounded-xl overflow-hidden bg-white/5 border border-white/10">
-                <img src="{{ item.image_url }}" alt="{{ item.name }}" class="w-full h-full object-cover">
+    <!-- 4. ORDER ITEMS (FORM WRAPPED) -->
+    <form method="POST">
+        {% csrf_token %}
+        <div class="bg-black/60 p-5 rounded-2xl border border-white/5 mb-4">
+            <h3 class="text-[9px] text-green-500 font-bold uppercase mb-4 tracking-widest">Order Items</h3>
+            <div class="space-y-6">
+                {% for item in items_with_totals %}
+                    <div class="border-b border-white/10 pb-4">
+                        <div class="flex items-center gap-4">
+                            {% if item.product %}
+                                <a href="{% url 'grocery:product_detail' item.product.id %}">
+                                    <div class="w-12 h-12 rounded-xl overflow-hidden bg-white/5 border border-white/10">
+                                        <img src="{{ item.image_url }}" alt="{{ item.name }}" class="w-full h-full object-cover">
+                                    </div>
+                                </a>
+                            {% else %}
+                                <div class="w-12 h-12 rounded-xl overflow-hidden bg-white/5 border border-white/10">
+                                    <img src="{{ item.image_url }}" alt="{{ item.name }}" class="w-full h-full object-cover">
+                                </div>
+                            {% endif %}
+                            <div class="flex-1">
+                                <p class="text-[11px] font-bold text-white leading-tight">{{ item.name }}</p>
+                                <p class="text-[9px] text-gray-400">Qty: {{ item.quantity }} x ₹{{ item.price }}</p>
+                            </div>
+                            <div class="text-[11px] font-mono font-bold text-white">₹{{ item.total_price }}</div>
+                        </div>
+
+                        <!-- RATING UI -->
+                        {% if order.payment_status == 'Delivered' and item.product_id %}
+                            
+                            {% if item.review %}
+                                <!-- READ ONLY VIEW -->
+                                <div class="mt-4 p-3 bg-black/40 border border-green-900/20 rounded-xl">
+                                    <p class="text-[9px] text-green-500 font-bold uppercase mb-2">Your Review</p>
+                                    <div class="flex gap-1 mb-2">
+                                        {% for i in "12345"|make_list %}
+                                            <svg class="w-5 h-5 {% if forloop.counter <= item.review.rating %}text-yellow-400{% else %}text-gray-600{% endif %}" 
+                                                 fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                            </svg>
+                                        {% endfor %}
+                                    </div>
+                                    <p class="text-[10px] text-gray-300 italic">"{{ item.review.comment }}"</p>
+                                </div>
+                            {% else %}
+                                <!-- FORM VIEW -->
+                                <div class="mt-4 p-3 bg-black/40 border border-green-900/30 rounded-xl">
+                                    <p class="text-[9px] text-green-500 font-bold uppercase mb-2">Rate your purchase</p>
+                                    <input type="hidden" name="rating_{{ item.product_id }}" id="rating-val-{{ item.product_id }}" value="5">
+                                    <div class="flex gap-1 mb-3">
+                                        {% for i in "12345"|make_list %}
+                                            <svg onclick="setRating('{{ item.product_id }}', {{ forloop.counter }})"
+                                                 id="star-{{ item.product_id }}-{{ forloop.counter }}"
+                                                 class="star-{{ item.product_id }} w-5 h-5 text-gray-400 cursor-pointer transition-all duration-200 hover:scale-110"
+                                                 fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                            </svg>
+                                        {% endfor %}
+                                    </div>
+                                    <textarea name="comment_{{ item.product_id }}" placeholder="Write a review..." 
+                                              class="w-full bg-black border border-green-900/50 text-white p-2 rounded text-[10px] focus:border-green-500 outline-none h-16 resize-none"></textarea>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <!-- Grand Total -->
+                <div class="pt-2 flex justify-between items-center mt-2">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase">Grand Total</p>
+                    <p class="text-[15px] font-bold text-white">₹{{ order.total_price }}</p>
+                </div>
+
+                <!-- SUBMIT BUTTON -->
+               <!-- Submit All Reviews Button -->
+                    <!-- Submit All Reviews Button -->
+{% if order.payment_status == 'Delivered' and can_submit_reviews %}
+    <button type="submit" name="submit_all_reviews" 
+            class="w-full bg-green-600 text-black py-3 text-[11px] font-black uppercase rounded-xl hover:bg-green-500 transition-all shadow-lg shadow-green-900/20 mt-4">
+        Submit All Reviews
+    </button>
+{% endif %}
             </div>
-        </a>
-    {% else %}
-        <!-- Agar product nahi hai, toh sirf image dikhao bina link ke -->
-        <div class="w-12 h-12 rounded-xl overflow-hidden bg-white/5 border border-white/10">
-            <img src="{{ item.image_url }}" alt="{{ item.name }}" class="w-full h-full object-cover">
         </div>
-    {% endif %}
+    </form>
 
-    <div class="flex-1">
-        <p class="text-[11px] font-bold text-white leading-tight">{{ item.name }}</p>
-        <p class="text-[9px] text-gray-400">Qty: {{ item.quantity }} x ₹{{ item.price }}</p>
-    </div>
-    
-    <div class="text-[11px] font-mono font-bold text-white">
-        ₹{{ item.total_price }}
-    </div>
-</div>
-{% endfor %}
-
-        <!-- Grand Total -->
-        <div class="pt-2 flex justify-between items-center border-t border-white/10 mt-2">
-            <p class="text-[10px] font-bold text-gray-400 uppercase">Grand Total</p>
-            <p class="text-[15px] font-bold text-white">₹{{ order.total_price }}</p>
-        </div>
-    </div>
-</div>
     <!-- 5. DELIVERY INFO -->
     <div class="bg-black/60 p-4 rounded-xl border border-white/5 mb-4 text-[10px]">
         <p class="text-green-500 font-bold uppercase mb-1">Delivery Address</p>
@@ -134,4 +177,24 @@
        Back to Orders
     </a>
 </div>
+
+<!-- STAR RATING SCRIPT -->
+<script>
+    function setRating(productId, rating) {
+        // 1. Update hidden input field value
+        document.getElementById('rating-val-' + productId).value = rating;
+
+        // 2. Loop through all stars for this specific product and toggle classes
+        const stars = document.querySelectorAll('.star-' + productId);
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.add('text-yellow-400');
+                star.classList.remove('text-gray-600');
+            } else {
+                star.classList.remove('text-yellow-400');
+                star.classList.add('text-gray-600');
+            }
+        });
+    }
+</script>
 {% endblock %}

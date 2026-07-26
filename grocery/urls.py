@@ -7,6 +7,11 @@ urlpatterns = [
     path("product-list/", views.grocery_list, name="grocery_list"),
     path("product-add/", views.add_product, name="add_product"),
     path("product/<int:pk>/", views.product_detail, name="product_detail"),
+    path(
+        "product-image-viewer/<int:product_id>/",
+        views.product_image_viewer,
+        name="product_image_viewer",
+    ),
     path("product-update/<int:pk>/", views.update_product, name="update_product"),
     path("product-delete/<int:pk>/", views.delete_product, name="delete_product"),
     path("cart/", views.view_cart, name="view_cart"),
@@ -48,4 +53,9 @@ urlpatterns = [
         name="update_status",
     ),
     path("cancel-order/<int:order_id>/", views.cancel_order, name="cancel_order"),
+    path(
+        "delete-review/<int:review_id>/<int:order_id>/",
+        views.delete_review,
+        name="delete_review",
+    ),
 ]

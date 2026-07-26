@@ -2,54 +2,115 @@
 {% block title %}DETAIL | {{ product.name }}{% endblock %}
 
 {% block body %}
-<!-- Outer wrapper with smooth margin and responsive container -->
-<div class="max-w-[260px] w-full mx-auto p-6  bg-black/50">
+<style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+
+<!-- Outer wrapper -->
+<div class="max-w-[260px] w-full mx-auto p-6 bg-black/50 rounded-xl">
     
-    <!-- Main Card Container: Glassmorphism effect with neon green border -->
-    <div class="bg-green-800/60 backdrop-blur-md border border-green-500/50 rounded-xl overflow-hidden shadow-[0_0_20px_rgba(34,197,94,0.15)] transition-all duration-300 hover:border-green-400 group">
+    <!-- Main Card Container -->
+    <div class="bg-green-800/60 backdrop-blur-md border border-green-500/50 rounded-xl overflow-hidden shadow-[0_0_20px_rgba(34,197,94,0.15)] transition-all duration-300 group">
         
-        <!-- Inner Card Wrap -->
         <div class="p-4 flex flex-col">
             
-            <!-- Product Image with Zoom Animation on Hover -->
-            <div class="relative h-40 w-full overflow-hidden rounded-lg bg-green-950/40">
-                <img src="{{ product.image.url }}" 
-                     alt="{{ product.name }}"
-                     class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110">
+            <!-- Image Slider Section -->
+            <div class="relative h-40 w-full overflow-hidden rounded-lg bg-green-950/40 group">
+                <a href="{% url 'grocery:product_image_viewer' product.id %}" class="block h-40 w-full overflow-hidden rounded-lg bg-green-950/40 group relative">
+                    <img id="mainSliderImg" src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover object-center transition-transform duration-700">
+                </a>
                 
-                <!-- Optional subtle badge/tag space if needed -->
                 <div class="absolute top-2 right-2 bg-green-600/80 text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                     Fresh
                 </div>
-            </div>
-            
-            <!-- Details Section -->
-            <div class="py-3 flex flex-col flex-grow">
-                <h1 class="text-[10px] font-bold text-white uppercase tracking-wide truncate mb-1" title="{{ product.name }}">
-                    {{ product.name }}
-                </h1>
-                <p class="text-green-400 text-[13px] font-extrabold  tracking-tight">
-                    ₹{{ product.price }}
-                </p>
-               
-            </div>
-            
-            <!-- Action Buttons: Side-by-side on mobile, highly responsive -->
-            <div class="grid grid-cols-2 gap-2 pt-1">
-                <!-- Add To Cart: Orange Styled -->
-                <a href="{% url 'grocery:add_to_cart' product.id %}" 
-                   class="w-full py-2.5 px-2 text-[8px] text-center rounded-lg bg-gradient-to-r from-orange-700 to-orange-600 text-white uppercase font-black tracking-wider hover:from-orange-600 hover:to-orange-500 active:scale-95 transition-all duration-200 shadow-md shadow-orange-900/30 flex items-center justify-center">
-                    Add To Cart
-                </a>
-                
-                <!-- Buy Now: Blue Styled with Glow -->
-                <a href="{% url 'grocery:buy_now' product.id %}" 
-                   class="w-full py-2.5 px-1 text-[8px] text-center rounded-lg bg-gradient-to-r from-blue-700 to-blue-600 text-white uppercase font-black tracking-wider hover:from-blue-600 hover:to-blue-500 active:scale-95 transition-all duration-200 shadow-[0_0_12px_rgba(37,99,235,0.4)] flex items-center justify-center">
-                    Buy Now
-                </a>
+
+                <button onclick="prevImage()" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-green-600 opacity-0 group-hover:opacity-100 transition-opacity text-[10px]">❮</button>
+                <button onclick="nextImage()" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-green-600 opacity-0 group-hover:opacity-100 transition-opacity text-[10px]">❯</button>
             </div>
 
+            <!-- Thumbnail Gallery -->
+            <div class="flex gap-2 mt-3 overflow-x-auto no-scrollbar pb-1 justify-start">
+                <img onclick="updateMainImage('{{ product.image.url }}')" src="{{ product.image.url }}" class="w-10 h-10 object-cover rounded border border-green-700 cursor-pointer hover:border-green-400 transition-all flex-shrink-0">
+                {% for img in product.images.all %}
+                <img onclick="updateMainImage('{{ img.image.url }}')" src="{{ img.image.url }}" class="w-10 h-10 object-cover rounded border border-green-700 cursor-pointer hover:border-green-400 transition-all flex-shrink-0">
+                {% endfor %}
+            </div>
+            
+            <!-- INTEGRATED SECTION -->
+<div class="py-2 flex flex-col flex-grow"> <!-- py-3 se py-2 kiya -->
+    
+    <!-- Rating Section -->
+    <div class="flex items-center gap-2 mb-1"> <!-- mb-2 se mb-1 kiya -->
+        <div class="flex items-center gap-0.5">
+            {% for i in rating_range %}
+                <span class="text-[10px] {% if i <= display_rating %}text-yellow-400{% else %}text-gray-600{% endif %}">★</span>
+            {% endfor %}
+        </div>
+        <span class="text-[9px] text-gray-400 font-medium">({{ product.reviews.count }} Ratings)</span>
+    </div>
+
+    <!-- Title -->
+    <h1 class="text-[9px] font-bold text-white uppercase tracking-wide truncate mb-1" title="{{ product.name }}">
+        {{ product.name }}
+    </h1>
+
+    <!-- Price Section -->
+    <div class="flex items-center gap-2 mb-2"> <!-- mb-3 se mb-2 kiya -->
+        <span class="text-[15px] font-black text-white">₹{{ product.price }}</span>
+        <span class="text-[10px] text-gray-400 line-through">₹{{ product.original_price }}</span>
+        <span class="text-[8px] font-bold text-green-500 uppercase">{{ product.discount_percent }}% off</span>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="grid grid-cols-2 gap-2 pb-2"> <!-- pt-1 hata diya, pb-2 add kiya -->
+    <a href="{% url 'grocery:add_to_cart' product.id %}" class="w-full py-2 px-2 text-[8px] text-center rounded-lg bg-gradient-to-r from-orange-700 to-orange-600 text-white uppercase font-black tracking-wider hover:from-orange-600 hover:to-orange-500 active:scale-95 transition-all shadow-md shadow-orange-900/30 flex items-center justify-center">Add To Cart</a>
+    <a href="{% url 'grocery:buy_now' product.id %}" class="w-full py-2 px-1 text-[8px] text-center rounded-lg bg-gradient-to-r from-blue-700 to-blue-600 text-white uppercase font-black tracking-wider hover:from-blue-600 hover:to-blue-500 active:scale-95 transition-all shadow-[0_0_12px_rgba(37,99,235,0.4)] flex items-center justify-center">Buy Now</a>
+</div>
+
+<!-- Product Details (Only if exists) -->
+{% if product.details %}
+<div class="border-t border-green-900/30 pt-2"> <!-- mt-2 aur pt-2 hata kar simple rakha -->
+    <div class="flex items-center gap-2 mb-1">
+        <div class="w-1 h-3 bg-green-500 rounded-full"></div>
+        <h3 class="text-[9px] font-black text-white uppercase tracking-[0.15em]">Product Info</h3>
+    </div>
+    <div class="bg-green-800/70 rounded-lg p-2 border border-green-900/30">
+        <p class="text-[8px] text-gray-400 leading-relaxed ">
+            {{ product.details|linebreaksbr }}
+        </p>
+    </div>
+</div>
+{% endif %}
+            
         </div>
     </div>
 </div>
+
+<script>
+    const images = [
+        "{{ product.image.url }}", 
+        {% for img in product.images.all %}
+            "{{ img.image.url }}",
+        {% endfor %}
+    ];
+    let currentIndex = 0;
+    const imgElement = document.getElementById('mainSliderImg');
+
+    function updateMainImage(src) {
+        imgElement.src = src;
+        currentIndex = images.indexOf(src);
+    }
+
+    function nextImage() {
+        currentIndex = (currentIndex + 1) % images.length;
+        imgElement.src = images[currentIndex];
+    }
+
+    function prevImage() {
+        currentIndex = (currentIndex - 1 + images.length) % images.length;
+        imgElement.src = images[currentIndex];
+    }
+</script>
 {% endblock %}

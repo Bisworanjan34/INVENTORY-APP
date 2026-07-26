@@ -2,26 +2,29 @@
 {% block title %}CART | {{ user.username }}{% endblock %}
 
 {% block body %}
-<div class="max-w-md mx-auto p-6 rounded-xl bg-black/50">
+<!-- Container adjusted for tight mobile fit -->
+<div class="max-w-md mx-auto p-3 bg-black/60 min-h-screen">
 
     <!-- Header -->
     <div class="mb-4 border-b border-green-900 pb-2">
-        <h2 class="text-md font-black text-white uppercase tracking-widest">Cart_System</h2>
+        <h2 class="text-[12px] font-black text-white uppercase tracking-widest">Cart_System</h2>
     </div>
 
     {% if items %}
     <div class="space-y-2">
         {% for item in items %}
-        <div class="flex items-center gap-3 bg-[#050505] border border-white/5 p-2" id="item-row-{{ item.product.id }}">
-            <img src="{{ item.product.image.url }}" class="w-12 h-12 object-cover border border-white/10">
+        <div class="flex items-center gap-2 bg-[#050505] border border-white/5 p-2 rounded-lg" id="item-row-{{ item.product.id }}">
+            <!-- Image -->
+            <img src="{{ item.product.image.url }}" class="w-10 h-10 object-cover border border-white/10 rounded shrink-0">
             
-            <div class="flex-grow">
-                <h3 class="text-white font-bold text-[10px] uppercase truncate">{{ item.product.name }}</h3>
-                <p class="text-green-500 font-mono text-[10px]">₹{{ item.product.price }}</p>
+            <!-- Product Info (Fixed wrapping here) -->
+            <div class="flex-grow min-w-0 pr-2">
+                <h3 class="text-white font-bold text-[8px] uppercase leading-tight whitespace-normal">{{ item.product.name }}</h3>
+                <p class="text-green-500 font-mono text-[9px]">₹{{ item.product.price }}</p>
             </div>
 
-            <!-- Compact Controller -->
-            <div class="flex items-center bg-black border border-green-900/50">
+            <!-- Compact Controller (Fixed width) -->
+            <div class="flex items-center bg-black border border-green-900/50 rounded shrink-0">
                 <button onclick="updateCart({{ item.product.id }}, 'decrease')" class="px-2 py-1 text-red-500 text-[10px] font-black">-</button>
                 <span class="px-2 text-white font-bold text-[10px]" id="qty-{{ item.product.id }}">{{ item.quantity }}</span>
                 <button onclick="updateCart({{ item.product.id }}, 'increase')" class="px-2 py-1 text-green-500 text-[10px] font-black">+</button>
@@ -31,12 +34,12 @@
     </div>
 
     <!-- Summary Box -->
-    <div class="mt-4 p-4 bg-[#050505] border-t-2 border-green-600">
-        <div class="flex justify-between items-center mb-4">
+    <div class="mt-4 p-3 bg-[#050505] border-t-2 border-green-600 rounded-b-lg">
+        <div class="flex justify-between items-center mb-3">
             <span class="text-gray-400 uppercase text-[9px] tracking-widest">Total</span>
-            <span class="text-md font-black text-white">₹{{ total }}</span>
+            <span class="text-[14px] font-black text-white">₹{{ total }}</span>
         </div>
-        <a href="{% url 'grocery:checkout' %}" class="w-full block text-center py-3 bg-green-600 text-green-500 font-black uppercase text-[10px] tracking-widest hover:bg-green-800 text-white border border-green-500 transition">
+        <a href="{% url 'grocery:checkout' %}" class="w-full block text-center py-2.5 bg-green-600 text-black font-black uppercase text-[10px] tracking-widest hover:bg-green-700 transition">
             Checkout_Now
         </a>
     </div>

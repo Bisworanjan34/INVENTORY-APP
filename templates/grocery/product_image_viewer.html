@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}VIEWER | {{ product.name }}{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-green-800/60 rounded-xl flex flex-col items-center justify-center p-4 relative border border-green-500">
+    
+    <!-- Header/Title -->
+    <div class="absolute top-6 left-6 flex items-center gap-3">
+        <div class="w-1 h-6 bg-green-500 rounded-full"></div>
+        <div>
+            <h1 class="text-[10px] font-black text-white uppercase tracking-[0.2em]">Product Viewer</h1>
+            <p class="text-[8px] text-gray-400 uppercase font-bold">{{ product.name }}</p>
+        </div>
+    </div>
+
+    <!-- Close Button -->
+    <a href="{% url 'grocery:product_detail' product.id %}" class="absolute top-5 right-5 text-gray-400 hover:text-white transition-colors bg-[#111] p-2 rounded-full border border-green-900/50">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </a>
+
+    <!-- Big Display Image with Lens Zoom -->
+    <div id="zoomContainer" class="relative w-full max-w-sm h-80 bg-[#111] rounded-3xl overflow-hidden mb-8 border border-green-900/30 flex items-center justify-center cursor-crosshair shadow-2xl">
+        <img id="bigImage" src="{{ product.image.url }}" class="w-full h-full object-contain transition-transform duration-200">
+    </div>
+
+    <!-- Gallery Thumbnails -->
+    <div class="flex gap-3 overflow-x-auto w-full max-w-sm pb-4 noscroll-bar px-2">
+        <img onclick="changeBigImage('{{ product.image.url }}')" src="{{ product.image.url }}" class="w-16 h-16 object-cover rounded-xl border-2 border-green-500 cursor-pointer hover:scale-105 transition-all">
+        {% for img in product.images.all %}
+        <img onclick="changeBigImage('{{ img.image.url }}')" src="{{ img.image.url }}" class="w-16 h-16 object-cover rounded-xl border border-green-900 cursor-pointer hover:border-green-600 transition-all">
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .noscroll-bar::-webkit-scrollbar { display: none; }
+    .noscroll-bar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+
+<script>
+    const container = document.getElementById('zoomContainer');
+    const img = document.getElementById('bigImage');
+
+    // Zoom Logic
+    container.addEventListener('mousemove', (e) => {
+        const rect = container.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width * 100;
+        const y = (e.clientY - rect.top) / rect.height * 100;
+        img.style.transformOrigin = `${x}% ${y}%`;
+        img.style.transform = 'scale(2.5)'; // Zoom level
+    });
+
+    container.addEventListener('mouseleave', () => {
+        img.style.transform = 'scale(1)';
+        img.style.transformOrigin = 'center';
+    });
+
+    function changeBigImage(src) {
+        img.src = src;
+        // Border update logic (optional)
+        document.querySelectorAll('img').forEach(el => el.classList.remove('border-green-500'));
+        event.target.classList.add('border-green-500');
+    }
+</script>
+{% endblock %}

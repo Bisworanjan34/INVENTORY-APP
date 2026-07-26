@@ -1,9 +1,19 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import OrderItem, Product, CartItem, Order, SavedAddress, Profile
+from .models import (
+    OrderItem,
+    Product,
+    CartItem,
+    Order,
+    SavedAddress,
+    Profile,
+    ProductImage,
+    Review,
+)
 from django.http import JsonResponse
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Avg
 
 
 @login_required
@@ -23,34 +33,82 @@ def grocery_list(request):
 @user_passes_test(lambda u: u.is_superuser)
 def add_product(request):
     if request.method == "POST":
-        Product.objects.create(
+        # 1. Product save karo (Saare required fields ke saath)
+        product = Product.objects.create(
             name=request.POST["name"],
             price=request.POST["price"],
+            original_price=request.POST["original_price"],  # Naya field add kiya
+            details=request.POST.get(
+                "details", ""
+            ),  # Naya field add kiya (empty string agar kuch na ho)
             stock=request.POST["stock"],
-            image=request.FILES.get("image"),
+            image=request.FILES.get("image"),  # Main image
         )
+
+        # 2. Multiple additional images save karo
+        images = request.FILES.getlist("additional_images")
+        for img in images:
+            ProductImage.objects.create(product=product, image=img)
+
         return redirect("grocery:grocery_list")
+
     return render(request, "grocery/manage.html", {"mode": "add"})
 
 
 @login_required
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
-    return render(request, "grocery/detail.html", {"product": product})
+
+    # Rating Calculation
+    avg_rating = product.reviews.aggregate(Avg("rating"))["rating__avg"]
+    display_rating = round(avg_rating) if avg_rating else 5
+
+    # FIX: OrderItem ko check karo, Order ko nahi
+    # OrderItem mein 'order__status' se check karenge ki order deliver hua ya nahi
+    user_bought = False
+    if request.user.is_authenticated:
+        user_bought = OrderItem.objects.filter(
+            order__user=request.user,
+            product=product,
+            order__status="Delivered",  # Status check kar lena database mein "Delivered" hai ya "delivered"
+        ).exists()
+
+    context = {
+        "product": product,
+        "has_ordered": user_bought,  # 'has_ordered' aur 'user_bought' ek hi cheez hain, ek hi use karo
+        "reviews": product.reviews.all().order_by("-created_at"),
+        "display_rating": display_rating,
+        "rating_range": range(1, 6),
+        "user_bought": user_bought,
+    }
+    return render(request, "grocery/detail.html", context)
+
+
+@login_required
+def product_image_viewer(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    return render(request, "grocery/product_image_viewer.html", {"product": product})
 
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def update_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
+
     if request.method == "POST":
         product.name = request.POST.get("name")
         product.price = request.POST.get("price")
         product.stock = request.POST.get("stock")
+        product.original_price = request.POST.get("original_price")
+        product.details = request.POST.get("details")
+
+        # Nayi image tabhi update hogi jab tum select karoge
         if request.FILES.get("image"):
             product.image = request.FILES.get("image")
+
         product.save()
         return redirect("grocery:grocery_list")
+
     return render(
         request, "grocery/manage.html", {"product": product, "mode": "update"}
     )
@@ -214,16 +272,37 @@ def buy_now(request, product_id):
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
-def order_detail(request, order_id):
-    order = get_object_or_404(Order, id=order_id)
-    return render(request, "grocery/order_detail.html", {"order": order})
+def admin_orders(request):
+    orders = Order.objects.all().order_by("-created_at")
+    return render(request, "grocery/admin_orders.html", {"orders": orders})
 
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
-def admin_orders(request):
-    orders = Order.objects.all().order_by("-created_at")
-    return render(request, "grocery/admin_orders.html", {"orders": orders})
+def order_detail(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    items = order.items.all()  # OrderItem access
+
+    # Har item ke liye review dhundo (Order ke user ke basis pe)
+    for item in items:
+        item.review = Review.objects.filter(
+            product=item.product,
+            user=order.user,  # Order jisne kiya, usi ka review
+        ).first()
+
+    return render(
+        request, "grocery/order_detail.html", {"order": order, "items": items}
+    )
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def delete_review(request, review_id, order_id):  # Yahan order_id add kiya
+    review = get_object_or_404(Review, id=review_id)
+    review.delete()
+    messages.success(request, "Review deleted successfully.")
+    # Ab seedha usi order_id pe wapas jayega
+    return redirect("grocery:order_detail", order_id=order_id)
 
 
 @login_required
@@ -275,24 +354,53 @@ def my_order_details(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     items = OrderItem.objects.filter(order=order)
 
+    # Bulk Review Submit logic
+    if request.method == "POST" and "submit_all_reviews" in request.POST:
+        for item in items:
+            if item.product:
+                # Dynamic naming convention: rating_{id}, comment_{id}
+                rating = request.POST.get(f"rating_{item.product.id}")
+                comment = request.POST.get(f"comment_{item.product.id}")
+
+                # Agar user ne review likha hai, tabhi save karenge
+                if comment and rating:
+                    Review.objects.create(
+                        product=item.product,
+                        user=request.user,
+                        rating=rating,
+                        comment=comment,
+                        is_approved=False,
+                    )
+        return redirect("grocery:my_order_details", order_id=order.id)
+
+    # Baaki code waisa hi...
     items_with_totals = []
     for item in items:
+        existing_review = Review.objects.filter(
+            product=item.product, user=request.user
+        ).first()
+        product_id = item.product.id if item.product else None
         items_with_totals.append(
             {
-                "product": item.product,  # Yeh zaruri hai URL link ke liye
+                "product": item.product,
+                "product_id": product_id,
                 "name": item.product_name,
                 "quantity": item.quantity,
                 "price": item.price,
                 "total_price": item.quantity * item.price,
                 "image_url": item.image_url,
+                "review": existing_review,
             }
         )
 
-    return render(
-        request,
-        "grocery/my_order_details.html",
-        {"order": order, "items_with_totals": items_with_totals},
-    )
+    can_submit_reviews = any(not item.get("review") for item in items_with_totals)
+
+    context = {
+        "order": order,
+        "items_with_totals": items_with_totals,
+        "can_submit_reviews": can_submit_reviews,
+    }
+    return render(request, "grocery/my_order_details.html", context)
 
 
 # profile sections
