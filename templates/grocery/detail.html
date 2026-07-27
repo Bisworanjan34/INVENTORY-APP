@@ -8,7 +8,7 @@
 </style>
 
 <!-- Outer wrapper -->
-<div class="max-w-[260px] w-full mx-auto p-6 bg-black/50 rounded-xl">
+<div class=" w-full mx-auto p-4 bg-black/50 rounded-xl">
     
     <!-- Main Card Container -->
     <div class="bg-green-800/60 backdrop-blur-md border border-green-500/50 rounded-xl overflow-hidden shadow-[0_0_20px_rgba(34,197,94,0.15)] transition-all duration-300 group">
@@ -16,8 +16,8 @@
         <div class="p-4 flex flex-col">
             
             <!-- Image Slider Section -->
-            <div class="relative h-40 w-full overflow-hidden rounded-lg bg-green-950/40 group">
-                <a href="{% url 'grocery:product_image_viewer' product.id %}" class="block h-40 w-full overflow-hidden rounded-lg bg-green-950/40 group relative">
+            <div class="relative h-[200px] w-full overflow-hidden rounded-lg bg-green-950/40 group">
+                <a href="{% url 'grocery:product_image_viewer' product.id %}" class="block h-full w-full overflow-hidden rounded-lg bg-green-950/40 group relative">
                     <img id="mainSliderImg" src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover object-center transition-transform duration-700">
                 </a>
                 
@@ -25,8 +25,8 @@
                     Fresh
                 </div>
 
-                <button onclick="prevImage()" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-green-600 opacity-0 group-hover:opacity-100 transition-opacity text-[10px]">❮</button>
-                <button onclick="nextImage()" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-green-600 opacity-0 group-hover:opacity-100 transition-opacity text-[10px]">❯</button>
+                <button onclick="prevImage()" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-green-600 opacity-0 group-hover:opacity-100 transition-opacity text-[15px] h-[55px] w-[16px]">❮</button>
+                <button onclick="nextImage()" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-green-600 opacity-0 group-hover:opacity-100 transition-opacity text-[15px] h-[55px] w-[16px]">❯</button>
             </div>
 
             <!-- Thumbnail Gallery -->
