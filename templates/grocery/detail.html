@@ -7,82 +7,82 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
 
-<!-- Outer wrapper -->
-<div class=" w-full mx-auto p-4 bg-black/50 rounded-xl">
+<!-- Outer wrapper with responsive max-width (Smaller on mobile, perfect width on laptop) -->
+<div class="w-full max-w-[300px] md:max-w-md mx-auto p-4 bg-black/50 rounded-xl my-4">
     
     <!-- Main Card Container -->
     <div class="bg-green-800/60 backdrop-blur-md border border-green-500/50 rounded-xl overflow-hidden shadow-[0_0_20px_rgba(34,197,94,0.15)] transition-all duration-300 group">
         
         <div class="p-4 flex flex-col">
             
-            <!-- Image Slider Section -->
-            <div class="relative h-[200px] w-full overflow-hidden rounded-lg bg-green-950/40 group">
+            <!-- Image Slider Section: Responsive height for mobile vs laptop -->
+            <div class="relative h-[220px] md:h-[280px] w-full overflow-hidden rounded-lg bg-green-950/40 group">
                 <a href="{% url 'grocery:product_image_viewer' product.id %}" class="block h-full w-full overflow-hidden rounded-lg bg-green-950/40 group relative">
                     <img id="mainSliderImg" src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover object-center transition-transform duration-700">
                 </a>
                 
-                <div class="absolute top-2 right-2 bg-green-600/80 text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <div class="absolute top-2 right-2 bg-green-600/80 text-white text-[9px] md:text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                     Fresh
                 </div>
 
-                <button onclick="prevImage()" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-green-600 opacity-0 group-hover:opacity-100 transition-opacity text-[15px] h-[55px] w-[16px]">❮</button>
-                <button onclick="nextImage()" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-green-600 opacity-0 group-hover:opacity-100 transition-opacity text-[15px] h-[55px] w-[16px]">❯</button>
+                <button onclick="prevImage()" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-green-600 opacity-0 group-hover:opacity-100 transition-opacity text-[15px] h-[55px] w-[16px] flex items-center justify-center">❮</button>
+                <button onclick="nextImage()" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full hover:bg-green-600 opacity-0 group-hover:opacity-100 transition-opacity text-[15px] h-[55px] w-[16px] flex items-center justify-center">❯</button>
             </div>
 
             <!-- Thumbnail Gallery -->
             <div class="flex gap-2 mt-3 overflow-x-auto no-scrollbar pb-1 justify-start">
-                <img onclick="updateMainImage('{{ product.image.url }}')" src="{{ product.image.url }}" class="w-10 h-10 object-cover rounded border border-green-700 cursor-pointer hover:border-green-400 transition-all flex-shrink-0">
+                <img onclick="updateMainImage('{{ product.image.url }}')" src="{{ product.image.url }}" class="w-10 h-10 md:w-12 md:h-12 object-cover rounded border border-green-700 cursor-pointer hover:border-green-400 transition-all flex-shrink-0">
                 {% for img in product.images.all %}
-                <img onclick="updateMainImage('{{ img.image.url }}')" src="{{ img.image.url }}" class="w-10 h-10 object-cover rounded border border-green-700 cursor-pointer hover:border-green-400 transition-all flex-shrink-0">
+                <img onclick="updateMainImage('{{ img.image.url }}')" src="{{ img.image.url }}" class="w-10 h-10 md:w-12 md:h-12 object-cover rounded border border-green-700 cursor-pointer hover:border-green-400 transition-all flex-shrink-0">
                 {% endfor %}
             </div>
             
             <!-- INTEGRATED SECTION -->
-<div class="py-2 flex flex-col flex-grow"> <!-- py-3 se py-2 kiya -->
-    
-    <!-- Rating Section -->
-    <div class="flex items-center gap-2 mb-1"> <!-- mb-2 se mb-1 kiya -->
-        <div class="flex items-center gap-0.5">
-            {% for i in rating_range %}
-                <span class="text-[10px] {% if i <= display_rating %}text-yellow-400{% else %}text-gray-600{% endif %}">★</span>
-            {% endfor %}
-        </div>
-        <span class="text-[9px] text-gray-400 font-medium">({{ product.reviews.count }} Ratings)</span>
-    </div>
+            <div class="py-2 flex flex-col flex-grow">
+                
+                <!-- Rating Section -->
+                <div class="flex items-center gap-2 mb-1">
+                    <div class="flex items-center gap-0.5">
+                        {% for i in rating_range %}
+                            <span class="text-[10px] md:text-xs {% if i <= display_rating %}text-yellow-400{% else %}text-gray-600{% endif %}">★</span>
+                        {% endfor %}
+                    </div>
+                    <span class="text-[9px] md:text-[10px] text-gray-400 font-medium">({{ product.reviews.count }} Ratings)</span>
+                </div>
 
-    <!-- Title -->
-    <h1 class="text-[9px] font-bold text-white uppercase tracking-wide truncate mb-1" title="{{ product.name }}">
-        {{ product.name }}
-    </h1>
+                <!-- Title -->
+                <h1 class="text-[10px] md:text-sm font-bold text-white uppercase tracking-wide truncate mb-1" title="{{ product.name }}">
+                    {{ product.name }}
+                </h1>
 
-    <!-- Price Section -->
-    <div class="flex items-center gap-2 mb-2"> <!-- mb-3 se mb-2 kiya -->
-        <span class="text-[15px] font-black text-white">₹{{ product.price }}</span>
-        <span class="text-[10px] text-gray-400 line-through">₹{{ product.original_price }}</span>
-        <span class="text-[8px] font-bold text-green-500 uppercase">{{ product.discount_percent }}% off</span>
-    </div>
-</div>
+                <!-- Price Section -->
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-base md:text-lg font-black text-white">₹{{ product.price }}</span>
+                    <span class="text-[10px] md:text-xs text-gray-400 line-through">₹{{ product.original_price }}</span>
+                    <span class="text-[8px] md:text-[10px] font-bold text-green-500 uppercase">{{ product.discount_percent }}% off</span>
+                </div>
+            </div>
 
-<!-- Action Buttons -->
-<div class="grid grid-cols-2 gap-2 pb-2"> <!-- pt-1 hata diya, pb-2 add kiya -->
-    <a href="{% url 'grocery:add_to_cart' product.id %}" class="w-full py-2 px-2 text-[8px] text-center rounded-lg bg-gradient-to-r from-orange-700 to-orange-600 text-white uppercase font-black tracking-wider hover:from-orange-600 hover:to-orange-500 active:scale-95 transition-all shadow-md shadow-orange-900/30 flex items-center justify-center">Add To Cart</a>
-    <a href="{% url 'grocery:buy_now' product.id %}" class="w-full py-2 px-1 text-[8px] text-center rounded-lg bg-gradient-to-r from-blue-700 to-blue-600 text-white uppercase font-black tracking-wider hover:from-blue-600 hover:to-blue-500 active:scale-95 transition-all shadow-[0_0_12px_rgba(37,99,235,0.4)] flex items-center justify-center">Buy Now</a>
-</div>
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-2 gap-2 pb-2">
+                <a href="{% url 'grocery:add_to_cart' product.id %}" class="w-full py-2.5 px-2 text-[9px] md:text-[11px] text-center rounded-lg bg-gradient-to-r from-orange-700 to-orange-600 text-white uppercase font-black tracking-wider hover:from-orange-600 hover:to-orange-500 active:scale-95 transition-all shadow-md shadow-orange-900/30 flex items-center justify-center">Add To Cart</a>
+                <a href="{% url 'grocery:buy_now' product.id %}" class="w-full py-2.5 px-1 text-[9px] md:text-[11px] text-center rounded-lg bg-gradient-to-r from-blue-700 to-blue-600 text-white uppercase font-black tracking-wider hover:from-blue-600 hover:to-blue-500 active:scale-95 transition-all shadow-[0_0_12px_rgba(37,99,235,0.4)] flex items-center justify-center">Buy Now</a>
+            </div>
 
-<!-- Product Details (Only if exists) -->
-{% if product.details %}
-<div class="border-t border-green-900/30 pt-2"> <!-- mt-2 aur pt-2 hata kar simple rakha -->
-    <div class="flex items-center gap-2 mb-1">
-        <div class="w-1 h-3 bg-green-500 rounded-full"></div>
-        <h3 class="text-[9px] font-black text-white uppercase tracking-[0.15em]">Product Info</h3>
-    </div>
-    <div class="bg-green-800/70 rounded-lg p-2 border border-green-900/30">
-        <p class="text-[8px] text-gray-400 leading-relaxed ">
-            {{ product.details|linebreaksbr }}
-        </p>
-    </div>
-</div>
-{% endif %}
+            <!-- Product Details (Only if exists) -->
+            {% if product.details %}
+            <div class="border-t border-green-900/30 pt-2">
+                <div class="flex items-center gap-2 mb-1">
+                    <div class="w-1 h-3 bg-green-500 rounded-full"></div>
+                    <h3 class="text-[9px] md:text-[11px] font-black text-white uppercase tracking-[0.15em]">Product Info</h3>
+                </div>
+                <div class="bg-green-800/70 rounded-lg p-2 border border-green-900/30">
+                    <p class="text-[8px] md:text-[10px] text-gray-400 leading-relaxed">
+                        {{ product.details|linebreaksbr }}
+                    </p>
+                </div>
+            </div>
+            {% endif %}
             
         </div>
     </div>
