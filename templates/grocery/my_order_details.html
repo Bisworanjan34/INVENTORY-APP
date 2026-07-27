@@ -3,7 +3,7 @@
 {% block title %}ORDER #{{ order.id }} | STATUS{% endblock %}
 
 {% block body %}
-<div class="min-h-screen bg-black/50 p-3 text-white font-sans max-w-md mx-auto">
+<div class="min-h-screen bg-green/30 backdrop-blur-md border border-green-600 p-3 text-white font-sans max-w-md mx-auto">
     
     <!-- 1. HEADER -->
     <div class="mb-4 border-b border-white/10 pb-3 flex justify-between items-center">
@@ -168,7 +168,7 @@
                     <div class="p-3 border border-white/10 rounded-xl bg-black/40 text-[10px] text-white transition-all peer-checked:border-red-500 peer-checked:bg-red-900/20 peer-checked:text-red-200">Changed my mind</div>
                 </label>
             </div>
-            <button type="submit" class="w-full py-3 bg-red-600/20 text-red-500 text-[10px] font-black uppercase rounded-xl hover:bg-red-600 hover:text-white transition-all active:scale-95 shadow-lg">Confirm Cancellation</button>
+            <button type="submit" class="w-full py-3 bg-red-900/80 text-red-400 text-[10px] font-black uppercase rounded-xl hover:bg-red-600 hover:text-white transition-all active:scale-95 shadow-lg">Confirm Cancellation</button>
         </form>
     {% endif %}
 

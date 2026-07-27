@@ -1,8 +1,8 @@
 <!-- NAV SECTION START -->
-<nav class="sticky top-0 z-50 py-2 w-full bg-green-800/80 backdrop-blur-md border-b border-green-900">
+<nav class="sticky top-0 z-50 py-2 w-full bg-green-800/80 backdrop-blur-md border-b border-green-900 border-green-900 bg-green-900/0 backdrop-blur-md transition-all duration-500">
     
     <!-- DESKTOP NAVBAR -->
-    <div class="hidden md:flex justify-between items-center px-8 py-3">
+    <div class="hidden md:flex justify-between items-center px-8 py-3  ">
         <a href="{% url 'grocery:grocery_list' %}" class="text-green-400 font-black tracking-widest text-lg uppercase">LIPU_GROCERY</a>
 
         <form action="{% url 'grocery:grocery_list' %}" method="GET" class="flex-1 mx-10">
@@ -37,8 +37,11 @@
     </div>
 
     <!-- MOBILE NAVBAR -->
-    <div class="md:hidden flex justify-between items-center px-4 py-3 bg-green-900/80 border-b border-green-500/30">
-        <a href="{% url 'grocery:grocery_list' %}" class="text-green-400 font-black tracking-widest text-md uppercase transition-transform duration-300 hover:scale-[1.03] hover:text-orange-400">LIPU_GROCERY</a>
+    <div class="md:hidden flex justify-between items-center px-4 py-3 border-green-900 bg-green-900/0 backdrop-blur-md transition-all duration-500 border-b border-green-500/30">
+        <div class="div">
+        <a href="{% url 'grocery:grocery_list' %}" class="text-green-400 font-black tracking-widest text-sm uppercase transition-transform duration-300 hover:scale-[1.02] hover:text-white tracking-widest border-l-2 border-gray-400 pl-3">LIPU_GROCERY</a>
+        <p class="text-gray-400 text-[8px] uppercase">lipu inventory</p>
+        </div>
         <div class="flex items-center gap-4">
             <button id="search-toggle-btn" class="text-green-500 hover:text-green-400 transition-colors duration-300 focus:outline-none">
                 <i class="fas fa-search text-md"></i>

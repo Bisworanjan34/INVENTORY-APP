@@ -2,8 +2,8 @@
 {% block title %}ORDER_CONSOLE | ADMIN{% endblock %}
 
 {% block body %}
-<div class="max-w-2xl mx-auto p-3 bg-black/40">  
-    <h2 class="text-md font-black text-green-500 uppercase mb-4 tracking-widest border-l-2 border-green-500 pl-3">
+<div class="max-w-2xl mx-auto p-3 bg-green-900/30 backdrop-blur-md ">  
+    <h2 class="text-md font-black text-green-400 uppercase mb-4 tracking-widest border-l-2 border-green-500 pl-3">
         Dispatch Logs
         <p class="text-gray-400 text-[9px] uppercase">master control</p>
     </h2>
@@ -11,7 +11,7 @@
     <div class="space-y-2">
         {% for order in orders %}
         <a href="{% url 'grocery:order_detail' order.id %}" class="block group">
-            <div class="bg-[#0a0a0a] border border-white/5 p-3 flex justify-between items-center hover:border-green-500 hover:bg-green-900/80 transition-all">
+            <div class="bg-[#0a0a0a]/40 border border-white/5 p-3 flex justify-between items-center hover:border-green-500 hover:bg-green-900/80 transition-all">
                 
                 <!-- Left: Account Info & Shipping Info -->
                 <div class="space-y-1">
