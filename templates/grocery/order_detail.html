@@ -2,12 +2,19 @@
 {% block title %}ORDER_{{ order.id }} | DETAILS{% endblock %}
 
 {% block body %}
-<div class="max-w-md mx-auto p-3 bg-[#050505]/60 border border-white/5">
+<div class="max-w-md mx-auto p-3 bg-black/40 backdrop-blur-md  border border-white/5">
     
     <!-- Top Header -->
+     <div class="pb-6">
+
+         <h2 class="text-xs md:text-sm font-black text-white uppercase tracking-widest border-l-2 border-green-500 pl-2">orders control <span class="text-yellow-400 text-[8px]">(admin)</span></h2>
+         <span class="text-[9px] font-mono text-gray-400 bg-green-950/40 border border-green-400/30 rounded-full uppercase ">
+             Secure Console
+            </span>
+        </div>
     <div class="flex justify-between items-center mb-4 border-b border-white/5 pb-3">
         <div>
-            <h2 class="text-white font-black text-sm uppercase">Order {{ order.id }}</h2>
+            <h2 class="text-white font-black text-xs uppercase">Order {{ order.id }}</h2>
             <p class="text-[9px] text-white/70 font-mono">{{ order.created_at|date:"d M Y, h:i A"}}</p>
         </div>
         <button onclick="toggleModal('delete-modal')" class="text-[9px] text-red-400 bg-red-900/80 uppercase font-bold border border-red-800/50 px-2 py-1 hover:bg-red-900/20">Delete</button>

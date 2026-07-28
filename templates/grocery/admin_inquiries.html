@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}SUPPORT INQUIRIES | ADMIN CONSOLE{% endblock %}
+
+{% block body %}
+<!-- Outer Container: Compact on mobile, spacious on laptop -->
+<div class="max-w-md md:max-w-4xl mx-auto p-3 md:p-8 bg-black/30 backdrop-blur-md min-h-screen text-white my-3 md:my-4 rounded-xl md:rounded-2xl border border-yellow-500/30 shadow-[0_0_30px_rgba(234,179,8,0.15)]">
+
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6 border-b border-yellow-500/30 pb-3 md:pb-4 gap-2">
+        <div>
+            <h2 class="text-xs md:text-base font-black text-yellow-400 uppercase tracking-widest border-l-2 border-yellow-500 pl-2 md:pl-3">Master Control // Support Logs</h2>
+            <p class="text-[9px] md:text-[10px] text-gray-400 mt-0.5 md:mt-1 pl-2 md:pl-3">Restricted Area: Superuser Admin Access Only</p>
+        </div>
+        <span class="text-[8px] md:text-[10px] font-mono text-yellow-400 bg-yellow-950/40 border border-yellow-500/40 px-2.5 py-1 rounded-full uppercase tracking-wider">
+            Total Logs: {{ inquiries.count }}
+        </span>
+    </div>
+
+    {% if inquiries %}
+    <!-- Inquiries List/Grid -->
+    <div class="space-y-3 md:space-y-4">
+        {% for item in inquiries %}
+        <div class="bg-green-700/30 border border-yellow-900/40 p-3.5 md:p-5 rounded-lg md:rounded-xl hover:border-yellow-500/50 transition-all flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            
+            <!-- Message Details -->
+            <div class="space-y-1.5 flex-grow min-w-0 w-full">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h3 class="text-white font-black text-xs md:text-sm uppercase tracking-wide truncate">{{ item.name }}</h3>
+                    <span class="text-[8px] md:text-[10px] font-mono text-gray-400 bg-black/60 px-2 py-0.5 rounded border border-white/5">
+                        {{ item.created_at|date:"d M Y, H:i" }}
+                    </span>
+                </div>
+                
+                <div class="flex items-center gap-2 text-[10px] md:text-xs text-yellow-500 font-mono">
+                    <i class="fas fa-phone-alt"></i>
+                    <a href="tel:{{ item.phone }}" class="hover:underline">{{ item.phone }}</a>
+                </div>
+
+                <!-- Message Box with Checkbox Toggle for 100% Reliable Expand -->
+                <div class="mt-2 bg-black/40 border border-white/5 p-2.5 rounded-md relative">
+                    <!-- Hidden checkbox to control expand/collapse without JS glitches -->
+                    <input type="checkbox" id="expand-{{ item.id }}" class="peer hidden">
+                    
+                    <!-- Message text: 2 lines by default, expands when checkbox is checked -->
+                    <p class="text-gray-300 text-[11px] md:text-xs leading-relaxed break-words line-clamp-2 peer-checked:line-clamp-none transition-all">
+                        {{ item.message }}
+                    </p>
+
+                    <!-- See More / See Less Label acting as a button -->
+                    <label for="expand-{{ item.id }}" class="inline-block text-[9px] md:text-[10px] text-yellow-400 font-bold uppercase tracking-wider mt-1.5 cursor-pointer hover:underline select-none">
+                        <span class="peer-checked:hidden">See More ↓</span>
+                        <span class="hidden peer-checked:inline">See Less ↑</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Delete Button Form / Action -->
+            <div class="w-full md:w-auto flex justify-end shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-white/5">
+                <a href="{% url 'grocery:delete_inquiry' item.id %}" onclick="return confirm('Are you sure you want to delete this support log?');" class="w-full md:w-auto px-4 py-2 bg-red-950/40 border border-red-500/50 text-red-400 hover:bg-red-600 hover:text-white font-black uppercase text-[10px] tracking-wider rounded-md md:rounded-lg transition-all text-center flex items-center justify-center gap-1.5 shadow-[0_0_10px_rgba(239,68,68,0.15)]">
+                    <i class="fas fa-trash-alt"></i> Delete Log
+                </a>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-16 px-4 border border-dashed border-yellow-900/40 rounded-xl bg-black/40 flex flex-col items-center justify-center space-y-3">
+        <div class="w-12 h-12 rounded-xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-yellow-400 text-xl">
+            <i class="fas fa-inbox"></i>
+        </div>
+        <h3 class="text-white font-black text-xs md:text-sm uppercase tracking-wider">No Support Inquiries Found</h3>
+        <p class="text-gray-400 text-[10px]">No users have submitted any support messages yet.</p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

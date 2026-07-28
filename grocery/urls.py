@@ -58,4 +58,15 @@ urlpatterns = [
         views.delete_review,
         name="delete_review",
     ),
+    path("contact-support/", views.contact_support, name="contact_support"),
+    path(
+        "admin-console/support-inquiries/",
+        views.admin_support_inquiries,
+        name="admin_inquiries",
+    ),
+    path(
+        "admin-console/support-inquiries/delete/<int:pk>/",
+        views.delete_support_inquiry,
+        name="delete_inquiry",
+    ),
 ]

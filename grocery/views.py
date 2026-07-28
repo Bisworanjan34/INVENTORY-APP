@@ -9,6 +9,7 @@ from .models import (
     Profile,
     ProductImage,
     Review,
+    SupportInquiry,
 )
 from django.http import JsonResponse
 from django.contrib import messages
@@ -553,3 +554,33 @@ def cancel_order(request, order_id):
         return redirect("grocery:my_order_details", order_id=order.id)
 
     return redirect("grocery:my_order_details", order_id=order_id)
+
+
+# contact support
+def contact_support(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        phone = request.POST.get("phone")
+        message = request.POST.get("message")
+
+        # Database mein save karna
+        SupportInquiry.objects.create(name=name, phone=phone, message=message)
+
+        # Success hone par wapas redirect ya success message de sakte ho
+        return redirect("grocery:contact_support")
+
+    return render(request, "grocery/contact_support.html")
+
+
+# admin inquiries
+@user_passes_test(lambda u: u.is_superuser)
+def admin_support_inquiries(request):
+    inquiries = SupportInquiry.objects.all().order_by("-created_at")
+    return render(request, "grocery/admin_inquiries.html", {"inquiries": inquiries})
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def delete_support_inquiry(request, pk):
+    inquiry = get_object_or_404(SupportInquiry, pk=pk)
+    inquiry.delete()
+    return redirect("grocery:admin_inquiries")
